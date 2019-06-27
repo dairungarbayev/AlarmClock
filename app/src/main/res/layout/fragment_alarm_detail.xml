@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AlarmDetailFragment"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/action_cancel"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/action_save"/>
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:drawableStart="@drawable/ic_open_datepicker"
+                android:text="@string/choose_date_button"/>
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TimePicker
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:timePickerMode="spinner"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_monday"
+                android:textOn="@string/toggle_monday"
+                android:textOff="@string/toggle_monday"
+                android:layout_weight="1" />
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_tuesday"
+                android:textOn="@string/toggle_tuesday"
+                android:textOff="@string/toggle_tuesday"
+                android:layout_weight="1"/>
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_wednesday"
+                android:textOn="@string/toggle_wednesday"
+                android:textOff="@string/toggle_wednesday"
+                android:layout_weight="1"/>
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_thursday"
+                android:textOn="@string/toggle_thursday"
+                android:textOff="@string/toggle_thursday"
+                android:layout_weight="1"/>
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_friday"
+                android:textOn="@string/toggle_friday"
+                android:textOff="@string/toggle_friday"
+                android:layout_weight="1"/>
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_saturday"
+                android:textOn="@string/toggle_saturday"
+                android:textOff="@string/toggle_saturday"
+                android:layout_weight="1"/>
+            <ToggleButton
+                android:layout_width="@dimen/toggle_weekday_width"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggle_sunday"
+                android:textOn="@string/toggle_sunday"
+                android:textOff="@string/toggle_sunday"
+                android:layout_weight="1"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/text_alarm_name"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"/>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/alarm_sound_label"
+                    android:id="@+id/label_alarm_sound"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/label_alarm_sound"
+                    android:id="@+id/label_ringtone_name"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:showText="false"
+                    android:id="@+id/switch_ringtone"/>
+                <SeekBar
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/label_ringtone_name"/>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/label_alarm_vibration"
+                    android:text="@string/alarm_vibration_label"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/label_alarm_vibration"
+                    android:id="@+id/label_vibration_name"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:showText="false"
+                    android:id="@+id/switch_vibration"/>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

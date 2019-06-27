@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Alarm Clock</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="choose_date_button">Choose date</string>
+    <string name="toggle_monday">m</string>
+    <string name="toggle_tuesday">t</string>
+    <string name="toggle_wednesday">w</string>
+    <string name="toggle_thursday">t</string>
+    <string name="toggle_friday">f</string>
+    <string name="toggle_saturday">s</string>
+    <string name="toggle_sunday">s</string>
+    <string name="text_alarm_name">Alarm Label</string>
+    <string name="alarm_sound_label">Ringtone</string>
+    <string name="alarm_vibration_label">Vibration</string>
 </resources>
