@@ -19,12 +19,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/action_cancel"/>
+                android:text="@string/action_cancel"
+                android:id="@+id/button_cancel"
+                style="?android:attr/buttonBarButtonStyle"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/action_save"/>
+                android:text="@string/action_save"
+                android:id="@+id/button_save"
+                style="?android:attr/buttonBarButtonStyle"/>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
@@ -38,13 +42,15 @@
             android:layout_height="wrap_content">
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:id="@+id/text_view_overview"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:drawableStart="@drawable/ic_open_datepicker"
-                android:text="@string/choose_date_button"/>
+                android:text="@string/choose_date_button"
+                android:id="@+id/button_choose_date"/>
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
@@ -55,7 +61,8 @@
         <TimePicker
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:timePickerMode="spinner"/>
+            android:timePickerMode="spinner"
+            android:id="@+id/time_picker"/>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -129,7 +136,8 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:id="@+id/card_alarm_label">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -139,7 +147,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"/>
+                android:layout_gravity="end"
+                android:id="@+id/text_view_alarm_label"/>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -149,27 +158,28 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/alarm_sound_label"
-                    android:id="@+id/label_alarm_sound"
-                    android:textSize="20sp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/label_alarm_sound"
-                    android:id="@+id/label_ringtone_name"/>
-                <Switch
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:showText="false"
-                    android:id="@+id/switch_ringtone"/>
+                    android:orientation="horizontal"
+                    android:id="@+id/layout_ringtone_choice"
+                    android:paddingBottom="10dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alarm_sound_label"
+                        android:textSize="20sp"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/label_ringtone_name"/>
+                </LinearLayout>
                 <SeekBar
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/label_ringtone_name"/>
+                    android:id="@+id/seek_bar_ringtone_volume"
+                    android:layout_below="@id/layout_ringtone_choice" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
 
@@ -186,11 +196,6 @@
                     android:id="@+id/label_alarm_vibration"
                     android:text="@string/alarm_vibration_label"
                     android:textSize="20sp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/label_alarm_vibration"
-                    android:id="@+id/label_vibration_name"/>
                 <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
