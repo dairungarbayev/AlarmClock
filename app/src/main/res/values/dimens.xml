@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="toggle_weekday_width">0dp</dimen>
+
+    <dimen name="ringtone_radio_button_margin">5dp</dimen>
 </resources>

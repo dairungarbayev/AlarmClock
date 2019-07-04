@@ -19,15 +19,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/action_cancel"
+                android:text="@string/cancel"
                 android:id="@+id/button_cancel"
-                style="?android:attr/buttonBarButtonStyle"/>
+                android:textColor="@android:color/black"
+                style="?android:attr/buttonBarButtonStyle" />
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/action_save"
+                android:text="@string/save"
                 android:id="@+id/button_save"
+                android:textColor="@android:color/black"
                 style="?android:attr/buttonBarButtonStyle"/>
         </LinearLayout>
 
@@ -43,13 +45,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/text_view_overview"/>
+                android:id="@+id/text_view_overview"
+                android:layout_marginStart="10dp"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:drawableStart="@drawable/ic_open_datepicker"
-                android:text="@string/choose_date_button"
+                android:text="@string/choose_date"
                 android:id="@+id/button_choose_date"/>
         </RelativeLayout>
 
@@ -76,50 +79,50 @@
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_monday"
-                android:textOn="@string/toggle_monday"
-                android:textOff="@string/toggle_monday"
+                android:textOn="@string/monday"
+                android:textOff="@string/monday"
                 android:layout_weight="1" />
             <ToggleButton
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_tuesday"
-                android:textOn="@string/toggle_tuesday"
-                android:textOff="@string/toggle_tuesday"
+                android:textOn="@string/tuesday"
+                android:textOff="@string/tuesday"
                 android:layout_weight="1"/>
             <ToggleButton
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_wednesday"
-                android:textOn="@string/toggle_wednesday"
-                android:textOff="@string/toggle_wednesday"
+                android:textOn="@string/wednesday"
+                android:textOff="@string/wednesday"
                 android:layout_weight="1"/>
             <ToggleButton
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_thursday"
-                android:textOn="@string/toggle_thursday"
-                android:textOff="@string/toggle_thursday"
+                android:textOn="@string/thursday"
+                android:textOff="@string/thursday"
                 android:layout_weight="1"/>
             <ToggleButton
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_friday"
-                android:textOn="@string/toggle_friday"
-                android:textOff="@string/toggle_friday"
+                android:textOn="@string/friday"
+                android:textOff="@string/friday"
                 android:layout_weight="1"/>
             <ToggleButton
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_saturday"
-                android:textOn="@string/toggle_saturday"
-                android:textOff="@string/toggle_saturday"
+                android:textOn="@string/saturday"
+                android:textOff="@string/saturday"
                 android:layout_weight="1"/>
             <ToggleButton
                 android:layout_width="@dimen/toggle_weekday_width"
                 android:layout_height="wrap_content"
                 android:id="@+id/toggle_sunday"
-                android:textOn="@string/toggle_sunday"
-                android:textOff="@string/toggle_sunday"
+                android:textOn="@string/sunday"
+                android:textOff="@string/sunday"
                 android:layout_weight="1"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -136,24 +139,6 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:id="@+id/card_alarm_label">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="@string/text_alarm_name"
-                android:textSize="20sp"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:id="@+id/text_view_alarm_label"/>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginTop="10dp">
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -162,24 +147,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:id="@+id/layout_ringtone_choice"
-                    android:paddingBottom="10dp">
+                    android:id="@+id/layout_ringtone_choice">
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/alarm_sound_label"
+                        android:text="@string/ringtone"
                         android:textSize="20sp"
-                        android:layout_weight="1"/>
+                        android:layout_marginStart="10dp"
+                        android:paddingBottom="10dp"
+                        android:layout_weight="1"
+                        android:id="@+id/label_final_ringtone"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/label_ringtone_name"/>
+                        android:id="@+id/label_ringtone_name"
+                        android:paddingBottom="10dp"/>
                 </LinearLayout>
                 <SeekBar
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/seek_bar_ringtone_volume"
-                    android:layout_below="@id/layout_ringtone_choice" />
+                    android:layout_below="@id/layout_ringtone_choice"/>
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
 
@@ -194,7 +182,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/label_alarm_vibration"
-                    android:text="@string/alarm_vibration_label"
+                    android:text="@string/vibration"
+                    android:layout_marginStart="10dp"
                     android:textSize="20sp"/>
                 <Switch
                     android:layout_width="wrap_content"

@@ -1,18 +1,21 @@
 <resources>
     <string name="app_name">Alarm Clock</string>
 
-    <string name="action_save">Save</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="choose_date_button">Choose date</string>
-    <string name="toggle_monday">m</string>
-    <string name="toggle_tuesday">t</string>
-    <string name="toggle_wednesday">w</string>
-    <string name="toggle_thursday">t</string>
-    <string name="toggle_friday">f</string>
-    <string name="toggle_saturday">s</string>
-    <string name="toggle_sunday">s</string>
-    <string name="text_alarm_name">Alarm Label</string>
-    <string name="alarm_sound_label">Ringtone</string>
-    <string name="alarm_vibration_label">Vibration</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="choose_date">Date</string>
+    <string name="monday">Mo</string>
+    <string name="tuesday">Tu</string>
+    <string name="wednesday">We</string>
+    <string name="thursday">Th</string>
+    <string name="friday">Fr</string>
+    <string name="saturday">Sa</string>
+    <string name="sunday">Su</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="vibration">Vibration</string>
+    <string name="repeat_disabled_message">Repetition is disabled</string>
+    <string name="repeat_enabled_message">Repetition is enabled</string>
 
+    <string name="ok">OK</string>
+    <string name="please_choose_ringtone">Please, choose ringtone</string>
 </resources>
