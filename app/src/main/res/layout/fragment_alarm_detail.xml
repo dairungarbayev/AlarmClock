@@ -31,6 +31,14 @@
                 android:id="@+id/button_save"
                 android:textColor="@android:color/black"
                 style="?android:attr/buttonBarButtonStyle"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/delete"
+                android:id="@+id/button_delete"
+                android:textColor="@android:color/black"
+                style="?android:attr/buttonBarButtonStyle"/>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

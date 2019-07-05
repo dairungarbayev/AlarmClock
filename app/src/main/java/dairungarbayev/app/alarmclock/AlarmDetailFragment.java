@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -35,7 +38,17 @@ import java.util.Date;
  */
 public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialogFragment.OnRingtoneChosen {
 
-    private Button cancelButton, saveButton, chooseDateButton;
+    public interface OnAlarmSettingsSet{
+        void save(ArrayList<Integer> weekdays, long date, Uri ringtoneUri, int volume,
+                  boolean isVibrationEnabled, int hour, int minute);
+        void edit(int index, ArrayList<Integer> weekdays, long date, Uri ringtoneUri, int volume,
+                  boolean isVibrationEnabled, int hour, int minute);
+        void delete(int index);
+    }
+
+    private static final String TAG = "AlarmDetailFragment";
+
+    private Button cancelButton, saveButton, deleteButton, chooseDateButton;
     private TextView overviewTextView;
     private TimePicker timePicker;
     private ToggleButton mondayToggle, tuesdayToggle, wednesdayToggle, thursdayToggle,
@@ -44,18 +57,43 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private Switch vibrationSwitch;
     private SeekBar ringtoneVolumeBar;
 
-    private boolean[] weekdays = new boolean[7];
-    private String ringtoneTitle;
+    private int index;
+    private ArrayList<Integer> checkedWeekdays = new ArrayList<>();
     private Uri ringtoneUri;
     private int volume;
     private boolean isVibrationEnabled;
-    private boolean isNew, isRepeating;
+    private boolean isNew;
     private int hour, minute;
-    private long date;
+    private long date = Calendar.getInstance().getTimeInMillis();
 
     private DatePickerDialog.OnDateSetListener dateSetListener;
 
     public AlarmDetailFragment() {
+        isNew = true;
+    }
+
+    public AlarmDetailFragment(int index, ArrayList<Integer> weekdays, Uri ringtoneUri, int volume,
+                               boolean isVibrationEnabled, int hour, int minute){
+        this.index = index;
+        this.checkedWeekdays = weekdays;
+        this.ringtoneUri = ringtoneUri;
+        this.volume = volume;
+        this.isVibrationEnabled = isVibrationEnabled;
+        this.hour = hour;
+        this.minute = minute;
+        isNew = false;
+    }
+
+    public AlarmDetailFragment(int index, long date, Uri ringtoneUri, int volume,
+                               boolean isVibrationEnabled, int hour, int minute){
+        this.index = index;
+        this.date = date;
+        this.ringtoneUri = ringtoneUri;
+        this.volume = volume;
+        this.isVibrationEnabled = isVibrationEnabled;
+        this.hour = hour;
+        this.minute = minute;
+        isNew = false;
     }
 
 
@@ -71,18 +109,24 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         super.onActivityCreated(savedInstanceState);
         getReferencesToViews();
         setTogglesOnListeners();
+        checkToggles();
+        setRingtoneNameTextView();
         setOnRingtoneChoiceOpener();
         listenForVibrationSetting();
         setSeekBar();
         setTimePicker();
         setChooseDateButton();
         setOverViewTextView();
+        setSaveButtonOnListener();
+        setDeleteButton();
+        setCancelButtonOnListener();
     }
 
     private void getReferencesToViews(){
         View view = getView();
         cancelButton = view.findViewById(R.id.button_cancel);
         saveButton = view.findViewById(R.id.button_save);
+        deleteButton = view.findViewById(R.id.button_delete);
         chooseDateButton = view.findViewById(R.id.button_choose_date);
 
         overviewTextView = view.findViewById(R.id.text_view_overview);
@@ -104,43 +148,65 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setTogglesOnListeners(){
         mondayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[0] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.MONDAY);
         });
         tuesdayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[1] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.TUESDAY);
         });
         wednesdayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[2] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.WEDNESDAY);
         });
         thursdayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[3] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.THURSDAY);
         });
         fridayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[4] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.FRIDAY);
         });
         saturdayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[5] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.SATURDAY);
         });
         sundayToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            weekdays[6] = isChecked;
-            onWeekdayCheckedChanged(isChecked);
+            onWeekdayCheckedChanged(isChecked, Calendar.SUNDAY);
         });
     }
 
-    private void onWeekdayCheckedChanged(boolean isChecked){
-        if (!isRepeating && isChecked){
+    private void onWeekdayCheckedChanged(boolean isChecked, int dayOfWeek){
+        if (!isRepeating() && isChecked){
             String msg = getString(R.string.repeat_enabled_message);
             Toast toast = Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT);
             toast.show();
         }
-        isRepeating = isRepeating();
         setOverViewTextView();
+        if (isChecked && !checkedWeekdays.contains(dayOfWeek)){
+            checkedWeekdays.add(dayOfWeek);
+        } else if (!isChecked && checkedWeekdays.contains(dayOfWeek)){
+            checkedWeekdays.remove(dayOfWeek);
+        }
+        Log.d(TAG, "onWeekdayCheckedChanged: " + checkedWeekdays);
+    }
+
+    private void checkToggles(){
+        if (checkedWeekdays.contains(Calendar.MONDAY)){
+            mondayToggle.setChecked(true);
+        }
+        if (checkedWeekdays.contains(Calendar.TUESDAY)){
+            tuesdayToggle.setChecked(true);
+        }
+        if (checkedWeekdays.contains(Calendar.WEDNESDAY)){
+            wednesdayToggle.setChecked(true);
+        }
+        if (checkedWeekdays.contains(Calendar.THURSDAY)){
+            thursdayToggle.setChecked(true);
+        }
+        if (checkedWeekdays.contains(Calendar.FRIDAY)){
+            fridayToggle.setChecked(true);
+        }
+        if (checkedWeekdays.contains(Calendar.SATURDAY)){
+            saturdayToggle.setChecked(true);
+        }
+        if (checkedWeekdays.contains(Calendar.SUNDAY)){
+            sundayToggle.setChecked(true);
+        }
     }
 
     private void setOverviewTextRepeating(){
@@ -154,8 +220,17 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         weekdaysString[5] = getResources().getString(R.string.saturday);
         weekdaysString[6] = getResources().getString(R.string.sunday);
 
+        int[] calendarWeekdayConsts = new int[7];
+        calendarWeekdayConsts[0] = Calendar.MONDAY;
+        calendarWeekdayConsts[1] = Calendar.TUESDAY;
+        calendarWeekdayConsts[2] = Calendar.WEDNESDAY;
+        calendarWeekdayConsts[3] = Calendar.THURSDAY;
+        calendarWeekdayConsts[4] = Calendar.FRIDAY;
+        calendarWeekdayConsts[5] = Calendar.SATURDAY;
+        calendarWeekdayConsts[6] = Calendar.SUNDAY;
+
         for (int i = 0; i<7; i++){
-            if (weekdays[i]){
+            if (checkedWeekdays.contains(calendarWeekdayConsts[i])){
                 buffer.append(weekdaysString[i]);
                 buffer.append(" ");
             }
@@ -165,11 +240,16 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private void setOverViewTextOneShot(){
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(date);
-        Date date = new Date(cal.getTimeInMillis());
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        if (calendar.getTimeInMillis() > Calendar.getInstance().getTimeInMillis()){
+            date = calendar.getTimeInMillis();
+        } else date = calendar.getTimeInMillis() + 86400000L;
+
+        Date dateObj = new Date(date);
         SimpleDateFormat format = new SimpleDateFormat("EEE, MMM dd");
-        String dateFormat = format.format(date);
+        String dateFormat = format.format(dateObj);
         overviewTextView.setText(dateFormat);
     }
 
@@ -179,6 +259,13 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
     };
 
+    private void setRingtoneNameTextView(){
+        if (isNew){
+            ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        }
+        ringtoneName.setText(RingtoneManager.getRingtone(getContext(),ringtoneUri).getTitle(getContext()));
+    }
+
     private void setOnRingtoneChoiceOpener(){
         ringtoneName.setOnClickListener(ringtoneChoiceOpener);
         ringtoneLabel.setOnClickListener(ringtoneChoiceOpener);
@@ -186,11 +273,14 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     @Override
     public void sendRingtoneData(String title, Uri uri) {
-        ringtoneTitle = title;
+        ringtoneName.setText(title);
         ringtoneUri = uri;
     }
 
     private void listenForVibrationSetting(){
+        if (!isNew){
+            vibrationSwitch.setChecked(isVibrationEnabled);
+        }
         vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             isVibrationEnabled = isChecked;
         });
@@ -199,7 +289,9 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private void setSeekBar(){
         AudioManager manager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         ringtoneVolumeBar.setMax(manager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
-        ringtoneVolumeBar.setProgress(manager.getStreamVolume(AudioManager.STREAM_ALARM));
+        if (isNew) {
+            ringtoneVolumeBar.setProgress(manager.getStreamVolume(AudioManager.STREAM_ALARM));
+        } else ringtoneVolumeBar.setProgress(volume);
 
         ringtoneVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -218,13 +310,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private boolean isRepeating(){
-        boolean isRepeating = false;
-        for (int i = 0; i<7; i++){
-            if (weekdays[i]){
-                isRepeating = true;
-            }
-        }
-        return isRepeating;
+        return checkedWeekdays.isEmpty();
     }
 
     private void setTimePicker(){
@@ -239,22 +325,34 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         timePicker.setOnTimeChangedListener((view, newHour, newMinute) -> {
             hour = newHour;
             minute = newMinute;
+            setOverViewTextView();
         });
     }
 
     private void setChooseDateButton(){
-        date = Calendar.getInstance().getTimeInMillis();
+        if (isNew) {
+            date = Calendar.getInstance().getTimeInMillis();
+        }
         setOverViewTextView();
 
         dateSetListener = (view, year, month, dayOfMonth) -> {
             date = getTimeInMillis(year, month, dayOfMonth);
-            if (isRepeating){
+            if (isRepeating()){
                 String msg = getResources().getString(R.string.repeat_disabled_message);
                 Toast toast = Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT);
                 toast.show();
             }
-            isRepeating = false;
+
+            mondayToggle.setChecked(false);
+            tuesdayToggle.setChecked(false);
+            wednesdayToggle.setChecked(false);
+            thursdayToggle.setChecked(false);
+            fridayToggle.setChecked(false);
+            saturdayToggle.setChecked(false);
+            sundayToggle.setChecked(false);
+
             setOverViewTextView();
+            checkedWeekdays.clear();
         };
         chooseDateButton.setOnClickListener(v -> {
             DatePickerDialog dialog = new DatePickerDialog(
@@ -269,8 +367,31 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         });
     }
 
+    private void setCancelButtonOnListener(){
+        cancelButton.setOnClickListener(v -> {
+
+        });
+    }
+
+    private void setSaveButtonOnListener(){
+        saveButton.setOnClickListener(v -> {
+
+        });
+    }
+
+    private void setDeleteButton(){
+        if (isNew){
+            deleteButton.setVisibility(View.GONE);
+        } else {
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener(v -> {
+
+            });
+        }
+    }
+
     private void setOverViewTextView(){
-        if (isRepeating){
+        if (isRepeating()){
             setOverviewTextRepeating();
         } else {
             setOverViewTextOneShot();
