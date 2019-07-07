@@ -45,20 +45,12 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     private ArrayList<Uri> uris;
     private Uri checkedUri;
     private String checkedTitle;
-    private boolean previouslyChecked;
 
-    public RingtoneChoiceDialogFragment() {
-        titles = new ArrayList<>();
-        uris = new ArrayList<>();
-        previouslyChecked = false;
-    }
-
-    public RingtoneChoiceDialogFragment(String title, Uri uri){
+    public RingtoneChoiceDialogFragment(Uri uri){
         titles = new ArrayList<>();
         uris = new ArrayList<>();
         checkedUri = uri;
-        checkedTitle = title;
-        previouslyChecked = true;
+        checkedTitle = RingtoneManager.getRingtone(getContext(),uri).getTitle(getContext());
     }
 
     @Override
@@ -122,11 +114,10 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
             radioButton.setLayoutParams(params);
             radioGroup.addView(radioButton);
 
-            if (previouslyChecked){
-                if (checkedTitle.equals(title) && checkedUri.equals(uri)){
-                    radioButton.toggle();
-                }
+            if (checkedTitle.equals(title) && checkedUri.equals(uri)){
+                radioButton.toggle();
             }
+
 
             radioButton.setOnClickListener(new View.OnClickListener() {
                 @Override

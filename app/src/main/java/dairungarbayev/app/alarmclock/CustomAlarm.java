@@ -17,7 +17,7 @@ public class CustomAlarm {
     private long date;
     private Uri ringtoneUri;
     private int volume;
-    private boolean vibrationOn;
+    private boolean vibrationOn, isNew;
     private int hour, minute, id;
 
     public CustomAlarm(Context context){
@@ -29,6 +29,7 @@ public class CustomAlarm {
         this.minute = 0;
         this.date = getDefaultDate();
         this.id = counter;
+        this.isNew = true;
         counter++;
     }
 
@@ -43,62 +44,71 @@ public class CustomAlarm {
         this.hour = alarm.hour;
         this.minute = alarm.minute;
         this.id = alarm.id;
+        this.isNew = false;
     }
 
     public void setCheckedWeekdays(ArrayList<Integer> checkedWeekdays) {
         this.checkedWeekdays = checkedWeekdays;
     }
 
-    public void setDate(long date) {
+    void setDate(long date) {
         this.date = date;
     }
 
-    public void setRingtoneUri(Uri ringtoneUri) {
+    void setRingtoneUri(Uri ringtoneUri) {
         this.ringtoneUri = ringtoneUri;
     }
 
-    public void setVolume(int volume) {
+    void setVolume(int volume) {
         this.volume = volume;
     }
 
-    public void setVibrationOn(boolean vibrationOn) {
+    void setVibrationOn(boolean vibrationOn) {
         this.vibrationOn = vibrationOn;
     }
 
-    public void setHour(int hour) {
+    void setHour(int hour) {
         this.hour = hour;
     }
 
-    public void setMinute(int minute) {
+    void setMinute(int minute) {
         this.minute = minute;
     }
 
-    public ArrayList<Integer> getCheckedWeekdays() {
+    ArrayList<Integer> getCheckedWeekdays() {
         return checkedWeekdays;
     }
 
-    public long getDate() {
+    long getDate() {
         return date;
     }
 
-    public Uri getRingtoneUri() {
+    Uri getRingtoneUri() {
         return ringtoneUri;
     }
 
-    public int getVolume() {
+    int getVolume() {
         return volume;
     }
 
-    public boolean isVibrationOn() {
+    boolean isVibrationOn() {
         return vibrationOn;
     }
 
-    public int getHour() {
+    int getHour() {
         return hour;
     }
 
-    public int getMinute() {
+    int getMinute() {
         return minute;
+    }
+
+    boolean isNew() {
+        return isNew;
+    }
+
+    int getId() {
+        return id;
     }
 
     private long getDefaultDate(){

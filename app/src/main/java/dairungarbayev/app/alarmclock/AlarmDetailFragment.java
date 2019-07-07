@@ -38,12 +38,10 @@ import java.util.Date;
  */
 public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialogFragment.OnRingtoneChosen {
 
-    public interface OnAlarmSettingsSet{
-        void save(ArrayList<Integer> weekdays, long date, Uri ringtoneUri, int volume,
-                  boolean isVibrationEnabled, int hour, int minute);
-        void edit(int index, ArrayList<Integer> weekdays, long date, Uri ringtoneUri, int volume,
-                  boolean isVibrationEnabled, int hour, int minute);
-        void delete(int index);
+    public interface OnAlarmSettingsSetListener{
+        void save(CustomAlarm alarm);
+        void edit(CustomAlarm alarm);
+        void delete(CustomAlarm alarm);
     }
 
     private static final String TAG = "AlarmDetailFragment";
@@ -57,45 +55,32 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private Switch vibrationSwitch;
     private SeekBar ringtoneVolumeBar;
 
-    private int index;
     private ArrayList<Integer> checkedWeekdays = new ArrayList<>();
     private Uri ringtoneUri;
     private int volume;
     private boolean isVibrationEnabled;
-    private boolean isNew;
     private int hour, minute;
-    private long date = Calendar.getInstance().getTimeInMillis();
+    private long date;
+    private boolean isNew;
 
+    private CustomAlarm alarm;
     private DatePickerDialog.OnDateSetListener dateSetListener;
+    private OnAlarmSettingsSetListener alarmSettingsSetListener;
 
-    public AlarmDetailFragment() {
-        isNew = true;
+    public AlarmDetailFragment(CustomAlarm alarm) {
+        this.alarm = alarm;
+        setFields();
     }
 
-    public AlarmDetailFragment(int index, ArrayList<Integer> weekdays, Uri ringtoneUri, int volume,
-                               boolean isVibrationEnabled, int hour, int minute){
-        this.index = index;
-        this.checkedWeekdays = weekdays;
-        this.ringtoneUri = ringtoneUri;
-        this.volume = volume;
-        this.isVibrationEnabled = isVibrationEnabled;
-        this.hour = hour;
-        this.minute = minute;
-        isNew = false;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            alarmSettingsSetListener = (OnAlarmSettingsSetListener) getTargetFragment();
+        } catch (ClassCastException e){
+            Log.e(TAG, "onAttach: " + e.getMessage() );
+        }
     }
-
-    public AlarmDetailFragment(int index, long date, Uri ringtoneUri, int volume,
-                               boolean isVibrationEnabled, int hour, int minute){
-        this.index = index;
-        this.date = date;
-        this.ringtoneUri = ringtoneUri;
-        this.volume = volume;
-        this.isVibrationEnabled = isVibrationEnabled;
-        this.hour = hour;
-        this.minute = minute;
-        isNew = false;
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -120,6 +105,17 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         setSaveButtonOnListener();
         setDeleteButton();
         setCancelButtonOnListener();
+    }
+
+    private void setFields(){
+        this.checkedWeekdays = alarm.getCheckedWeekdays();
+        this.date = alarm.getDate();
+        this.ringtoneUri = alarm.getRingtoneUri();
+        this.volume = alarm.getVolume();
+        this.isVibrationEnabled = alarm.isVibrationOn();
+        this.hour = alarm.getHour();
+        this.minute = alarm.getMinute();
+        this.isNew = alarm.isNew();
     }
 
     private void getReferencesToViews(){
@@ -254,15 +250,12 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private View.OnClickListener ringtoneChoiceOpener = v -> {
-        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment();
+        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(ringtoneUri);
         dialog.setTargetFragment(AlarmDetailFragment.this, 222);
         dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
     };
 
     private void setRingtoneNameTextView(){
-        if (isNew){
-            ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        }
         ringtoneName.setText(RingtoneManager.getRingtone(getContext(),ringtoneUri).getTitle(getContext()));
     }
 
@@ -278,9 +271,8 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private void listenForVibrationSetting(){
-        if (!isNew){
-            vibrationSwitch.setChecked(isVibrationEnabled);
-        }
+        vibrationSwitch.setChecked(isVibrationEnabled);
+
         vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             isVibrationEnabled = isChecked;
         });
@@ -289,9 +281,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private void setSeekBar(){
         AudioManager manager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         ringtoneVolumeBar.setMax(manager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
-        if (isNew) {
-            ringtoneVolumeBar.setProgress(manager.getStreamVolume(AudioManager.STREAM_ALARM));
-        } else ringtoneVolumeBar.setProgress(volume);
+        ringtoneVolumeBar.setProgress(volume);
 
         ringtoneVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -315,11 +305,6 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setTimePicker(){
         timePicker.setIs24HourView(true);
-        Calendar cal = Calendar.getInstance();
-        if (isNew){
-            hour = cal.get(Calendar.HOUR_OF_DAY);
-            minute = cal.get(Calendar.MINUTE);
-        }
         timePicker.setHour(hour);
         timePicker.setMinute(minute);
         timePicker.setOnTimeChangedListener((view, newHour, newMinute) -> {
@@ -330,9 +315,6 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private void setChooseDateButton(){
-        if (isNew) {
-            date = Calendar.getInstance().getTimeInMillis();
-        }
         setOverViewTextView();
 
         dateSetListener = (view, year, month, dayOfMonth) -> {
@@ -375,7 +357,9 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setSaveButtonOnListener(){
         saveButton.setOnClickListener(v -> {
-
+            if (isNew) {
+                alarmSettingsSetListener.save(alarm);
+            } else alarmSettingsSetListener.edit(alarm);
         });
     }
 
@@ -385,7 +369,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         } else {
             deleteButton.setVisibility(View.VISIBLE);
             deleteButton.setOnClickListener(v -> {
-
+                alarmSettingsSetListener.delete(alarm);
             });
         }
     }
