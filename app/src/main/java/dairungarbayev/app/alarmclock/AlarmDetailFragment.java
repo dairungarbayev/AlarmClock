@@ -1,16 +1,15 @@
 package dairungarbayev.app.alarmclock;
 
 
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -18,8 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -27,10 +24,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 
 /**
@@ -42,6 +37,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         void save(CustomAlarm alarm);
         void edit(CustomAlarm alarm);
         void delete(CustomAlarm alarm);
+        void cancel();
     }
 
     private static final String TAG = "AlarmDetailFragment";
@@ -76,7 +72,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            alarmSettingsSetListener = (OnAlarmSettingsSetListener) getTargetFragment();
+            alarmSettingsSetListener = (OnAlarmSettingsSetListener) getActivity();
         } catch (ClassCastException e){
             Log.e(TAG, "onAttach: " + e.getMessage() );
         }
@@ -176,7 +172,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         if (isChecked && !checkedWeekdays.contains(dayOfWeek)){
             checkedWeekdays.add(dayOfWeek);
         } else if (!isChecked && checkedWeekdays.contains(dayOfWeek)){
-            checkedWeekdays.remove(dayOfWeek);
+            checkedWeekdays.remove(Integer.valueOf(dayOfWeek));
         }
         Log.d(TAG, "onWeekdayCheckedChanged: " + checkedWeekdays);
     }
@@ -205,52 +201,8 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         }
     }
 
-    private void setOverviewTextRepeating(){
-        StringBuffer buffer = new StringBuffer();
-        String[] weekdaysString = new String[7];
-        weekdaysString[0] = getResources().getString(R.string.monday);
-        weekdaysString[1] = getResources().getString(R.string.tuesday);
-        weekdaysString[2] = getResources().getString(R.string.wednesday);
-        weekdaysString[3] = getResources().getString(R.string.thursday);
-        weekdaysString[4] = getResources().getString(R.string.friday);
-        weekdaysString[5] = getResources().getString(R.string.saturday);
-        weekdaysString[6] = getResources().getString(R.string.sunday);
-
-        int[] calendarWeekdayConsts = new int[7];
-        calendarWeekdayConsts[0] = Calendar.MONDAY;
-        calendarWeekdayConsts[1] = Calendar.TUESDAY;
-        calendarWeekdayConsts[2] = Calendar.WEDNESDAY;
-        calendarWeekdayConsts[3] = Calendar.THURSDAY;
-        calendarWeekdayConsts[4] = Calendar.FRIDAY;
-        calendarWeekdayConsts[5] = Calendar.SATURDAY;
-        calendarWeekdayConsts[6] = Calendar.SUNDAY;
-
-        for (int i = 0; i<7; i++){
-            if (checkedWeekdays.contains(calendarWeekdayConsts[i])){
-                buffer.append(weekdaysString[i]);
-                buffer.append(" ");
-            }
-        }
-
-        overviewTextView.setText(buffer.toString());
-    }
-
-    private void setOverViewTextOneShot(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        if (calendar.getTimeInMillis() > Calendar.getInstance().getTimeInMillis()){
-            date = calendar.getTimeInMillis();
-        } else date = calendar.getTimeInMillis() + 86400000L;
-
-        Date dateObj = new Date(date);
-        SimpleDateFormat format = new SimpleDateFormat("EEE, MMM dd");
-        String dateFormat = format.format(dateObj);
-        overviewTextView.setText(dateFormat);
-    }
-
     private View.OnClickListener ringtoneChoiceOpener = v -> {
-        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(ringtoneUri);
+        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(getContext(),ringtoneUri);
         dialog.setTargetFragment(AlarmDetailFragment.this, 222);
         dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
     };
@@ -300,7 +252,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private boolean isRepeating(){
-        return checkedWeekdays.isEmpty();
+        return !checkedWeekdays.isEmpty();
     }
 
     private void setTimePicker(){
@@ -349,14 +301,25 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         });
     }
 
+    private void setAlarm(){
+        alarm.setCheckedWeekdays(checkedWeekdays);
+        alarm.setDate(date);
+        alarm.setHour(hour);
+        alarm.setMinute(minute);
+        alarm.setRingtoneUri(ringtoneUri);
+        alarm.setVolume(volume);
+        alarm.setVibrationOn(isVibrationEnabled);
+    }
+
     private void setCancelButtonOnListener(){
         cancelButton.setOnClickListener(v -> {
-
+            alarmSettingsSetListener.cancel();
         });
     }
 
     private void setSaveButtonOnListener(){
         saveButton.setOnClickListener(v -> {
+            setAlarm();
             if (isNew) {
                 alarmSettingsSetListener.save(alarm);
             } else alarmSettingsSetListener.edit(alarm);
@@ -376,9 +339,9 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setOverViewTextView(){
         if (isRepeating()){
-            setOverviewTextRepeating();
+            overviewTextView.setText(Statics.getOverviewTextRepeating(getContext(),checkedWeekdays));
         } else {
-            setOverViewTextOneShot();
+            overviewTextView.setText(Statics.getOverviewTextOneShot(date));
         }
     }
 

@@ -46,11 +46,11 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     private Uri checkedUri;
     private String checkedTitle;
 
-    public RingtoneChoiceDialogFragment(Uri uri){
+    public RingtoneChoiceDialogFragment(Context context, Uri uri){
         titles = new ArrayList<>();
         uris = new ArrayList<>();
         checkedUri = uri;
-        checkedTitle = RingtoneManager.getRingtone(getContext(),uri).getTitle(getContext());
+        checkedTitle = RingtoneManager.getRingtone(context,uri).getTitle(context);
     }
 
     @Override

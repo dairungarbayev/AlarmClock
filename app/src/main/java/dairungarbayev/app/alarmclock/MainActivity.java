@@ -1,37 +1,118 @@
 package dairungarbayev.app.alarmclock;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.telecom.Call;
-import android.view.View;
-import android.widget.TextView;
+import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements AlarmDetailFragment.OnAlarmSettingsSetListener, AlarmsListFragment.AlarmsListInterface {
 
-    private TextView textView;
+    private final String ALARM_JSON_KEY = "alarm_json_";
+    private ArrayList<CustomAlarm> alarmsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView = findViewById(R.id.set_alarm);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),JumpingButtonActivity.class);
-                PendingIntent pi = PendingIntent.getActivity(
-                        getApplicationContext(),333,intent,PendingIntent.FLAG_CANCEL_CURRENT);
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.SECOND, 10);
-                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                am.set(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pi);
+        getData();
+
+        FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+        AlarmsListFragment alarmsListFragment = new AlarmsListFragment(alarmsList);
+        transaction.add(R.id.main_activity_view_holder,alarmsListFragment);
+        transaction.commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveData();
+    }
+
+    private void getData(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+
+        int size = prefs.getAll().size();
+
+        if (size != 0){
+            for (int i = 0; i < size; i++){
+                alarmsList.add(new CustomAlarm(getApplicationContext(),prefs.getString(ALARM_JSON_KEY+i, "")));
+
+                editor.remove(ALARM_JSON_KEY+i);
             }
-        });
+            editor.apply();
+        }
+    }
+
+    @Override
+    public void save(CustomAlarm alarm) {
+        alarmsList.add(alarm);
+        replaceSettingsToList();
+    }
+
+    @Override
+    public void edit(CustomAlarm alarm) {
+        for (int i = 0; i < alarmsList.size(); i++){
+            if (alarmsList.get(i).getId() == alarm.getId()){
+                alarmsList.set(i, alarm);
+                break;
+            }
+        }
+        replaceSettingsToList();
+    }
+
+    @Override
+    public void delete(CustomAlarm alarm) {
+        for (int i = 0; i < alarmsList.size(); i++){
+            if (alarmsList.get(i).getId() == alarm.getId()){
+                alarmsList.remove(i);
+                break;
+            }
+        }
+        replaceSettingsToList();
+    }
+
+    @Override
+    public void cancel() {
+        replaceSettingsToList();
+    }
+
+    private void replaceSettingsToList(){
+        FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+        AlarmsListFragment alarmsListFragment = new AlarmsListFragment(alarmsList);
+        transaction.replace(R.id.main_activity_view_holder,alarmsListFragment);
+        transaction.commit();
+    }
+
+    @Override
+    public void listToNewSettings() {
+        FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+        AlarmDetailFragment detailFragment = new AlarmDetailFragment(new CustomAlarm(getApplicationContext()));
+        transaction.replace(R.id.main_activity_view_holder,detailFragment);
+        transaction.commit();
+    }
+
+    @Override
+    public void listToExistingSettings(CustomAlarm alarm) {
+        FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+        AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
+        transaction.replace(R.id.main_activity_view_holder,detailFragment);
+        transaction.commit();
+    }
+
+    private void saveData(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+
+        for (int i = 0; i < alarmsList.size(); i++){
+            editor.putString(ALARM_JSON_KEY+i, alarmsList.get(i).toJsonString());
+        }
+        editor.apply();
     }
 }
