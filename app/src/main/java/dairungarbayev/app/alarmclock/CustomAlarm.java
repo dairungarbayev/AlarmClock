@@ -155,6 +155,10 @@ class CustomAlarm {
         this.minute = minute;
     }
 
+    public void setNotNew() {
+        isNew = false;
+    }
+
     ArrayList<Integer> getCheckedWeekdays() {
         return checkedWeekdays;
     }

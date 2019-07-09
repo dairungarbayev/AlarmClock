@@ -168,13 +168,12 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
             Toast toast = Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT);
             toast.show();
         }
-        setOverViewTextView();
         if (isChecked && !checkedWeekdays.contains(dayOfWeek)){
             checkedWeekdays.add(dayOfWeek);
         } else if (!isChecked && checkedWeekdays.contains(dayOfWeek)){
             checkedWeekdays.remove(Integer.valueOf(dayOfWeek));
         }
-        Log.d(TAG, "onWeekdayCheckedChanged: " + checkedWeekdays);
+        setOverViewTextView();
     }
 
     private void checkToggles(){
@@ -309,6 +308,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         alarm.setRingtoneUri(ringtoneUri);
         alarm.setVolume(volume);
         alarm.setVibrationOn(isVibrationEnabled);
+        alarm.setNotNew();
     }
 
     private void setCancelButtonOnListener(){
