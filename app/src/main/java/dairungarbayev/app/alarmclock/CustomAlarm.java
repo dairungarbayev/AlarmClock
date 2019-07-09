@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 
 class CustomAlarm {
 
@@ -27,7 +26,7 @@ class CustomAlarm {
     private boolean vibrationOn, isNew;
     private int hour, minute, id;
     private Context appContext;
-    private PendingIntent pendingIntent;
+    private boolean state = false;
 
     CustomAlarm(Context context){
         this.ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -56,10 +55,12 @@ class CustomAlarm {
         this.id = alarm.id;
         this.isNew = false;
         this.appContext = context;
+        this.state = alarm.state;
     }
 
     void setAlarmOn(){
         getAlarmManager().set(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
+        state = true;
 
         long interval = getNextAlarmTime() - Calendar.getInstance().getTimeInMillis();
         long days = interval / 86400000L;
@@ -82,6 +83,7 @@ class CustomAlarm {
 
     void cancelAlarm(){
         getAlarmManager().cancel(getPendingIntent());
+        state = false;
     }
 
     private AlarmManager getAlarmManager(){
@@ -192,6 +194,10 @@ class CustomAlarm {
         return id;
     }
 
+    public boolean getState() {
+        return state;
+    }
+
     private long getDefaultDate(){
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -211,6 +217,7 @@ class CustomAlarm {
         data.ringtoneUriString = this.ringtoneUri.toString();
         data.vibrationOn = this.vibrationOn;
         data.volume = this.volume;
+        data.state = this.state;
 
         Gson gson = new Gson();
         return gson.toJson(data);
@@ -226,7 +233,7 @@ class CustomAlarm {
         private long date;
         private String ringtoneUriString;
         private int volume;
-        private boolean vibrationOn;
+        private boolean vibrationOn, state;
 
         private CustomAlarmData() {
         }

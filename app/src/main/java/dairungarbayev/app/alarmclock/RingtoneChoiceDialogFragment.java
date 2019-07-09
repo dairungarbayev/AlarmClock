@@ -36,7 +36,7 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
         void sendRingtoneData(String title, Uri uri);
     }
 
-    public OnRingtoneChosen onRingtoneChosen;
+    private OnRingtoneChosen onRingtoneChosen;
 
     private RadioGroup radioGroup;
     private Button cancelButton, okButton;
@@ -46,11 +46,14 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     private Uri checkedUri;
     private String checkedTitle;
 
-    public RingtoneChoiceDialogFragment(Context context, Uri uri){
+    private Ringtone ringtone;
+
+    RingtoneChoiceDialogFragment(Context context, Uri uri){
         titles = new ArrayList<>();
         uris = new ArrayList<>();
         checkedUri = uri;
-        checkedTitle = RingtoneManager.getRingtone(context,uri).getTitle(context);
+        ringtone = RingtoneManager.getRingtone(context,uri);
+        checkedTitle = ringtone.getTitle(context);
     }
 
     @Override
@@ -114,7 +117,7 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
             radioButton.setLayoutParams(params);
             radioGroup.addView(radioButton);
 
-            if (checkedTitle.equals(title) && checkedUri.equals(uri)){
+            if (checkedUri.equals(uri)){
                 radioButton.toggle();
             }
 
@@ -122,12 +125,13 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
             radioButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    ringtone.stop();
                     radioButton.toggle();
 
                     checkedTitle = title;
                     checkedUri = uri;
 
-                    Ringtone ringtone = RingtoneManager.getRingtone(getContext(),uri);
+                    ringtone = RingtoneManager.getRingtone(getContext(),uri);
                     ringtone.play();
                 }
             });
@@ -136,6 +140,7 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
 
     private void setCancelButton(){
         cancelButton.setOnClickListener(v -> {
+            ringtone.stop();
             getDialog().dismiss();
         });
     }
@@ -144,6 +149,7 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
         okButton.setOnClickListener(v -> {
             if (radioGroup.getCheckedRadioButtonId() != -1 && !checkedTitle.equals("") && !checkedUri.equals(Uri.EMPTY)){
                 onRingtoneChosen.sendRingtoneData(checkedTitle, checkedUri);
+                ringtone.stop();
                 getDialog().dismiss();
             } else {
                 String text = getResources().getString(R.string.please_choose_ringtone);

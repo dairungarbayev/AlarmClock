@@ -122,8 +122,9 @@ public class AlarmsListFragment extends Fragment {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         toggleParams.addRule(RelativeLayout.ALIGN_PARENT_END);
         toggleParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        toggle.setLayoutParams(timeParams);
+        toggle.setLayoutParams(toggleParams);
         layout.addView(toggle);
+        toggle.setChecked(alarm.getState());
 
         toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked){
@@ -136,7 +137,7 @@ public class AlarmsListFragment extends Fragment {
         cardView.setLayoutParams(cardParams);
         alarmsListLayout.addView(cardView);
 
-        timeView.setOnClickListener(v -> alarmsListInterface.listToExistingSettings(alarm));
+        cardView.setOnClickListener(v -> alarmsListInterface.listToExistingSettings(alarm));
     }
 
     private void setAddButton(){
