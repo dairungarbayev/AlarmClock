@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 class CustomAlarm {
 
@@ -61,24 +62,6 @@ class CustomAlarm {
     void setAlarmOn(){
         getAlarmManager().set(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
         state = true;
-
-        long interval = getNextAlarmTime() - Calendar.getInstance().getTimeInMillis();
-        long days = interval / 86400000L;
-        long hours = (interval - 86400000L*days)/3600000;
-        long minutes = (interval - 86400000L*days - 3600000*hours)/60000;
-        String intervalText = appContext.getResources().getString(R.string.next_alarm_set_for)+" ";
-        String minutesText = minutes + " " + appContext.getResources().getString(R.string.minute) + " ";
-        String hoursText;
-        if (hours != 0){
-            hoursText = hours + " " + appContext.getResources().getString(R.string.hour) + " ";
-        } else hoursText = "";
-        String daysText;
-        if (days != 0){
-            daysText = hours + " " + appContext.getResources().getString(R.string.day) + " ";
-        } else daysText = "";
-        intervalText += daysText + hoursText + minutesText;
-        Toast toast = Toast.makeText(appContext,intervalText,Toast.LENGTH_SHORT);
-        toast.show();
     }
 
     void cancelAlarm(){
@@ -111,11 +94,11 @@ class CustomAlarm {
                     } else timeInMillis += 86400000L;
                 }
             }
-            long min = timeList.get(0);
-            for (int i = 1; i < timeList.size(); i++){
-                if (timeList.get(i) < min){
-                    min = timeList.get(i);
-                }
+            long min = Collections.min(timeList);
+
+            if (min < Calendar.getInstance().getTimeInMillis()){
+                timeList.remove(Long.valueOf(min));
+                min = Collections.min(timeList);
             }
             next.setTimeInMillis(min);
         } else next.setTimeInMillis(getDate());
@@ -219,6 +202,28 @@ class CustomAlarm {
 
     public boolean getState() {
         return state;
+    }
+
+    void showTimeIntervalToast(){
+        long interval = getNextAlarmTime() - Calendar.getInstance().getTimeInMillis();
+        long days = interval / 86400000L;
+        long hours = (interval - 86400000L*days)/3600000;
+        long minutes = (interval - 86400000L*days - 3600000*hours)/60000;
+
+        String intervalText = appContext.getResources().getString(R.string.next_alarm_set_for)+" ";
+        String minutesText = minutes + " " + appContext.getResources().getString(R.string.minute) + " ";
+        String hoursText;
+        if (hours != 0){
+            hoursText = hours + " " + appContext.getResources().getString(R.string.hour) + " ";
+        } else hoursText = "";
+        String daysText;
+        if (days != 0){
+            daysText = hours + " " + appContext.getResources().getString(R.string.day) + " ";
+        } else daysText = "";
+        intervalText += daysText + hoursText + minutesText;
+
+        Toast toast = Toast.makeText(appContext,intervalText,Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private long getDefaultDate(){

@@ -129,6 +129,7 @@ public class AlarmsListFragment extends Fragment {
         toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked){
                 alarm.setAlarmOn();
+                alarm.showTimeIntervalToast();
             } else alarm.cancelAlarm();
         });
 
