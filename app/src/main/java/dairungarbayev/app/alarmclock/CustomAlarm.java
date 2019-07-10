@@ -66,15 +66,15 @@ class CustomAlarm {
         long days = interval / 86400000L;
         long hours = (interval - 86400000L*days)/3600000;
         long minutes = (interval - 86400000L*days - 3600000*hours)/60000;
-        String intervalText = appContext.getResources().getString(R.string.next_alarm_set_for);
-        String minutesText = minutes + appContext.getResources().getString(R.string.minute);
+        String intervalText = appContext.getResources().getString(R.string.next_alarm_set_for)+" ";
+        String minutesText = minutes + " " + appContext.getResources().getString(R.string.minute) + " ";
         String hoursText;
         if (hours != 0){
-            hoursText = hours + appContext.getResources().getString(R.string.hour);
+            hoursText = hours + " " + appContext.getResources().getString(R.string.hour) + " ";
         } else hoursText = "";
         String daysText;
         if (days != 0){
-            daysText = hours + appContext.getResources().getString(R.string.day);
+            daysText = hours + " " + appContext.getResources().getString(R.string.day) + " ";
         } else daysText = "";
         intervalText += daysText + hoursText + minutesText;
         Toast toast = Toast.makeText(appContext,intervalText,Toast.LENGTH_SHORT);
@@ -124,6 +124,16 @@ class CustomAlarm {
         next.set(Calendar.MINUTE,minute);
         next.set(Calendar.SECOND,0);
         next.set(Calendar.MILLISECOND,0);
+        if (!isRepeating()){
+            if (next.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()){
+                date += 86400000L;
+                next.setTimeInMillis(date);
+                next.set(Calendar.HOUR_OF_DAY,hour);
+                next.set(Calendar.MINUTE,minute);
+                next.set(Calendar.SECOND,0);
+                next.set(Calendar.MILLISECOND,0);
+            }
+        }
         return next.getTimeInMillis();
     }
 
@@ -164,8 +174,17 @@ class CustomAlarm {
     }
 
     long getDate() {
-        while (Calendar.getInstance().getTimeInMillis() > date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+
+        Calendar newCal = Calendar.getInstance();
+        newCal.setTimeInMillis(date);
+        while (calendar.compareTo(newCal) > 0){
             date += 86400000L;
+            calendar.setTimeInMillis(date);
         }
         return date;
     }
@@ -204,11 +223,11 @@ class CustomAlarm {
 
     private long getDefaultDate(){
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        if (calendar.getTimeInMillis() > Calendar.getInstance().getTimeInMillis()){
-            return calendar.getTimeInMillis();
-        } else return calendar.getTimeInMillis() + 86400000L;
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND,0);
+        return calendar.getTimeInMillis();
     }
 
     String toJsonString(){

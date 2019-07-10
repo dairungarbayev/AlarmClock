@@ -94,7 +94,7 @@ public class AlarmsListFragment extends Fragment {
         int margin = getResources().getDimensionPixelSize(R.dimen.alarm_card_margin);
 
         TextView timeView = new TextView(getContext());
-        String timeText = alarm.getHour()+":"+alarm.getMinute();
+        String timeText = String.format("%02d",alarm.getHour())+":"+String.format("%02d",alarm.getMinute());
         timeView.setText(timeText);
         timeView.setTextSize(getResources().getDimensionPixelSize(R.dimen.time_text_size));
         RelativeLayout.LayoutParams timeParams = new RelativeLayout.LayoutParams(
@@ -109,7 +109,7 @@ public class AlarmsListFragment extends Fragment {
         TextView overview = new TextView(getContext());
         if (alarm.isRepeating()){
             overview.setText(Statics.getOverviewTextRepeating(getContext(),alarm.getCheckedWeekdays()));
-        } else overview.setText(Statics.getOverviewTextOneShot(alarm.getDate()));
+        } else overview.setText(Statics.getOverviewTextOneShot(alarm.getNextAlarmTime()));
         overview.setTextSize(getResources().getDimensionPixelSize(R.dimen.time_text_size));
         RelativeLayout.LayoutParams overviewParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

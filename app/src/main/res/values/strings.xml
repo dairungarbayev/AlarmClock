@@ -21,7 +21,7 @@
     <string name="please_choose_ringtone">Please, choose ringtone</string>
     
     <string name="next_alarm_set_for">Alarm set for </string>
-    <string name="day"> d. </string>
-    <string name="hour"> h. </string>
-    <string name="minute"> m. </string>
+    <string name="day">d.</string>
+    <string name="hour">h.</string>
+    <string name="minute">m.</string>
 </resources>
