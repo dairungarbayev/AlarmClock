@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -16,6 +17,8 @@ import java.util.Calendar;
 import java.util.Collections;
 
 class CustomAlarm {
+
+    private static final String TAG = "CustomAlarm";
 
     private final String ALARM_JSON = "alarm_json";
 
@@ -81,25 +84,24 @@ class CustomAlarm {
 
     long getNextAlarmTime(){
         Calendar next = Calendar.getInstance();
+        ArrayList<Long> timeList = new ArrayList<>();
+
         if (isRepeating()){
-            ArrayList<Long> timeList = new ArrayList<>();
             for (int i = 0; i<checkedWeekdays.size(); i++){
                 Calendar cal = Calendar.getInstance();
                 long timeInMillis = cal.getTimeInMillis();
-                for (int j = 0; j<7; j++){
+                for (int j = 0; j<9; j++){
                     cal.setTimeInMillis(timeInMillis);
                     if (cal.get(Calendar.DAY_OF_WEEK) == checkedWeekdays.get(i)){
                         timeList.add(timeInMillis);
-                        break;
-                    } else timeInMillis += 86400000L;
+                    }
+                    timeInMillis += 86400000L;
                 }
             }
-            long min = Collections.min(timeList);
 
-            if (min < Calendar.getInstance().getTimeInMillis()){
-                timeList.remove(Long.valueOf(min));
-                min = Collections.min(timeList);
-            }
+            Log.d(TAG, "getNextAlarmTime: timeList: " + timeList);
+
+            long min = Collections.min(timeList);
             next.setTimeInMillis(min);
         } else next.setTimeInMillis(getDate());
 
@@ -107,16 +109,24 @@ class CustomAlarm {
         next.set(Calendar.MINUTE,minute);
         next.set(Calendar.SECOND,0);
         next.set(Calendar.MILLISECOND,0);
-        if (!isRepeating()){
-            if (next.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()){
+
+        if (next.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()){
+            if (isRepeating()){
+                Log.d(TAG, "getNextAlarmTime: timeList: " + timeList);
+                long min = Collections.min(timeList);
+                timeList.remove(min);
+                Log.d(TAG, "getNextAlarmTime: timeList: " + timeList);
+                next.setTimeInMillis(Collections.min(timeList));
+            } else {
                 date += 86400000L;
                 next.setTimeInMillis(date);
-                next.set(Calendar.HOUR_OF_DAY,hour);
-                next.set(Calendar.MINUTE,minute);
-                next.set(Calendar.SECOND,0);
-                next.set(Calendar.MILLISECOND,0);
             }
+            next.set(Calendar.HOUR_OF_DAY,hour);
+            next.set(Calendar.MINUTE,minute);
+            next.set(Calendar.SECOND,0);
+            next.set(Calendar.MILLISECOND,0);
         }
+
         return next.getTimeInMillis();
     }
 
@@ -218,7 +228,7 @@ class CustomAlarm {
         } else hoursText = "";
         String daysText;
         if (days != 0){
-            daysText = hours + " " + appContext.getResources().getString(R.string.day) + " ";
+            daysText = days + " " + appContext.getResources().getString(R.string.day) + " ";
         } else daysText = "";
         intervalText += daysText + hoursText + minutesText;
 
