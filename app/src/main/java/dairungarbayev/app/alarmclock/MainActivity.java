@@ -9,11 +9,15 @@ import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity
         implements AlarmDetailFragment.OnAlarmSettingsSetListener, AlarmsListFragment.AlarmsListInterface {
 
     private final String ALARM_JSON_KEY = "alarm_json_";
+    private final String ALARMS_COUNTER_KEY = "alarms_counter";
     private ArrayList<CustomAlarm> alarmsList = new ArrayList<>();
 
     @Override
@@ -29,8 +33,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         saveData();
     }
 
@@ -38,15 +42,32 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();
 
-        int size = prefs.getAll().size();
+        CustomAlarm.setCounter(prefs.getInt(ALARMS_COUNTER_KEY,1));
+        editor.remove(ALARMS_COUNTER_KEY);
+        editor.apply();
 
-        if (size != 0){
-            for (int i = 0; i < size; i++){
-                alarmsList.add(new CustomAlarm(getApplicationContext(),prefs.getString(ALARM_JSON_KEY+i, "")));
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = prefs.edit();
 
-                editor.remove(ALARM_JSON_KEY+i);
+        ArrayList<String> alarmJsons = new ArrayList(prefs.getAll().values());
+
+        if (alarmJsons.size() != 0){
+            for (int i = 0; i < alarmJsons.size(); i++){
+                if (!alarmJsons.get(i).isEmpty()) {
+                    alarmsList.add(new CustomAlarm(getApplicationContext(), alarmJsons.get(i)));
+                }
             }
+            editor.clear();
             editor.apply();
+
+            if (!alarmsList.isEmpty()){
+                Collections.sort(alarmsList, new Comparator<CustomAlarm>() {
+                    @Override
+                    public int compare(CustomAlarm alarm1, CustomAlarm alarm2) {
+                        return alarm1.getId() - alarm2.getId();
+                    }
+                });
+            }
         }
     }
 
@@ -54,6 +75,7 @@ public class MainActivity extends AppCompatActivity
     public void save(CustomAlarm alarm) {
         alarmsList.add(alarm);
         alarm.setAlarmOn();
+        alarm.showTimeIntervalToast();
         replaceSettingsToList();
     }
 
@@ -63,6 +85,7 @@ public class MainActivity extends AppCompatActivity
             if (alarmsList.get(i).getId() == alarm.getId()){
                 alarmsList.set(i, alarm);
                 alarmsList.get(i).setAlarmOn();
+                alarmsList.get(i).showTimeIntervalToast();
                 break;
             }
         }
@@ -117,9 +140,18 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();
 
-        for (int i = 0; i < alarmsList.size(); i++){
-            editor.putString(ALARM_JSON_KEY+i, alarmsList.get(i).toJsonString());
+        if (prefs.getAll().size() != 0){
+            editor.clear();
+            editor.apply();
+            prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            editor = prefs.edit();
         }
+        CustomAlarm alarm;
+        for (int i = 0; i < alarmsList.size(); i++){
+            alarm = alarmsList.get(i);
+            editor.putString(ALARM_JSON_KEY+alarm.getId(), alarm.toJsonString());
+        }
+        editor.putInt(ALARMS_COUNTER_KEY, CustomAlarm.getCounter());
         editor.apply();
     }
 }

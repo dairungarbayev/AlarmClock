@@ -15,20 +15,23 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 class CustomAlarm {
 
     private static final String TAG = "CustomAlarm";
 
-    private final String ALARM_JSON = "alarm_json";
+    private final String ALARM_ID = "alarm_id";
 
-    private static int counter = 0;
+    private static int counter = 1;
     private ArrayList<Integer> checkedWeekdays = new ArrayList<>();
     private long date;
     private Uri ringtoneUri;
     private int volume;
     private boolean vibrationOn, isNew;
-    private int hour, minute, id;
+    private int hour, minute;
+    private int id;
     private Context appContext;
     private boolean state = false;
 
@@ -63,7 +66,7 @@ class CustomAlarm {
     }
 
     void setAlarmOn(){
-        getAlarmManager().set(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
+        getAlarmManager().setExact(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
         state = true;
     }
 
@@ -78,7 +81,7 @@ class CustomAlarm {
 
     private PendingIntent getPendingIntent(){
         Intent intent = new Intent(appContext, JumpingButtonActivity.class);
-        intent.putExtra(ALARM_JSON,toJsonString());
+        intent.putExtra(ALARM_ID,id);
         return PendingIntent.getActivity(appContext,id,intent,PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
@@ -158,8 +161,12 @@ class CustomAlarm {
         this.minute = minute;
     }
 
-    public void setNotNew() {
+    void setNotNew() {
         isNew = false;
+    }
+
+    public static void setCounter(int counter) {
+        CustomAlarm.counter = counter;
     }
 
     ArrayList<Integer> getCheckedWeekdays() {
@@ -210,8 +217,12 @@ class CustomAlarm {
         return id;
     }
 
-    public boolean getState() {
+    boolean getState() {
         return state;
+    }
+
+    public static int getCounter() {
+        return counter;
     }
 
     void showTimeIntervalToast(){
