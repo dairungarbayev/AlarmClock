@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void save(CustomAlarm alarm) {
         alarmsList.add(alarm);
+        alarm.setAlarmOn();
         replaceSettingsToList();
     }
 
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < alarmsList.size(); i++){
             if (alarmsList.get(i).getId() == alarm.getId()){
                 alarmsList.set(i, alarm);
+                alarmsList.get(i).setAlarmOn();
                 break;
             }
         }
@@ -69,8 +71,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void delete(CustomAlarm alarm) {
+        alarm.cancelAlarm();
         for (int i = 0; i < alarmsList.size(); i++){
             if (alarmsList.get(i).getId() == alarm.getId()){
+                alarmsList.get(i).cancelAlarm();
                 alarmsList.remove(i);
                 break;
             }
@@ -100,6 +104,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void listToExistingSettings(CustomAlarm alarm) {
+        if (alarm.getState()){
+            alarm.cancelAlarm();
+        }
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
         transaction.replace(R.id.main_activity_view_holder,detailFragment);
