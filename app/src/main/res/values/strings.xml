@@ -24,4 +24,6 @@
     <string name="day">d.</string>
     <string name="hour">h.</string>
     <string name="minute">m.</string>
+
+    <string name="walk_away">WALK AWAY FROM HERE</string>
 </resources>

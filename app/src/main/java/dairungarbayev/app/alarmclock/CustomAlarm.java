@@ -36,7 +36,7 @@ class CustomAlarm {
     private boolean state = false;
 
     CustomAlarm(Context context){
-        this.ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        this.ringtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context,RingtoneManager.TYPE_ALARM);
         AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.volume = manager.getStreamVolume(AudioManager.STREAM_ALARM);
         this.vibrationOn = false;

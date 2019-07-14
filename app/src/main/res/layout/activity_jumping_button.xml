@@ -7,10 +7,10 @@
     android:layout_height="match_parent"
     tools:context=".JumpingButtonActivity">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:id="@+id/turn_off_button"/>
+    <fragment
+        android:name="com.google.ar.sceneform.ux.ArFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_ar_dismiss_alarm"/>
 
 </RelativeLayout>
