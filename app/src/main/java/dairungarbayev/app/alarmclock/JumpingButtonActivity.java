@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
@@ -32,6 +33,8 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
+
+import java.io.IOException;
 
 public class JumpingButtonActivity extends AppCompatActivity {
 
@@ -83,11 +86,21 @@ public class JumpingButtonActivity extends AppCompatActivity {
 
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        player = MediaPlayer.create(this,alarm.getRingtoneUri());
-        player.setVolume((float)alarm.getVolume()/audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM),
-                (float)alarm.getVolume()/audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
-        player.start();
+        audioManager.setStreamVolume(AudioManager.STREAM_ALARM,alarm.getVolume(),0);
 
+        player = new MediaPlayer();
+        player.setAudioAttributes(
+                new AudioAttributes.Builder()
+                        .setLegacyStreamType(AudioManager.STREAM_ALARM).build());
+        player.setLooping(true);
+        try {
+            player.setDataSource(this, alarm.getRingtoneUri());
+            player.prepare();
+        } catch (IOException e){
+            Toast toast = Toast.makeText(this,"Error setting media player data source",Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        player.start();
 
 
         arFragment =(ArFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_ar_dismiss_alarm);
