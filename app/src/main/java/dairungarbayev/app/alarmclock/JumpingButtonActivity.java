@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -67,12 +68,9 @@ public class JumpingButtonActivity extends AppCompatActivity {
         int id = getIntent().getIntExtra(ALARM_ID,0);
         if (id != 0){
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = prefs.edit();
             String json = prefs.getString(ALARM_JSON_KEY + id, "");
             if (json != null && !json.isEmpty()) {
                 alarm = new CustomAlarm(getApplicationContext(), json);
-                editor.remove(ALARM_JSON_KEY + id);
-                editor.apply();
             } else {
                 Toast toast = Toast.makeText(getApplicationContext(),"Error: alarm JSON null or empty", Toast.LENGTH_SHORT);
                 toast.show();

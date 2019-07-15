@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity
                     alarmsList.add(new CustomAlarm(getApplicationContext(), alarmJsons.get(i)));
                 }
             }
-            editor.clear();
+            editor.putInt(ALARMS_COUNTER_KEY, CustomAlarm.getCounter());
             editor.apply();
 
             if (!alarmsList.isEmpty()){
