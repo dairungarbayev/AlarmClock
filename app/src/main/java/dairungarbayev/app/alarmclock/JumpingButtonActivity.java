@@ -14,6 +14,8 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.View;
@@ -49,6 +51,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
     private CustomAlarm alarm;
 
     private MediaPlayer player;
+    private Vibrator vibrator;
 
     private Handler handler;
     private Handler initialHandler;
@@ -101,6 +104,14 @@ public class JumpingButtonActivity extends AppCompatActivity {
             toast.show();
         }
         player.start();
+
+        if (alarm.isVibrationOn()){
+            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            long[] pattern = {1000, 1000};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern,0));
+            } else vibrator.vibrate(pattern,0);
+        }
 
 
         arFragment =(ArFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_ar_dismiss_alarm);
@@ -207,6 +218,9 @@ public class JumpingButtonActivity extends AppCompatActivity {
                                 turnOffButton = alarmOffRenderable.getView().findViewById(R.id.button_dismiss_alarm);
                                 turnOffButton.setOnClickListener(v -> {
                                     player.stop();
+                                    if (alarm.isVibrationOn()){
+                                        vibrator.cancel();
+                                    }
 
                                     if (alarm != null){
                                         if (alarm.isRepeating()){
