@@ -52,11 +52,11 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private SeekBar ringtoneVolumeBar;
 
     private ArrayList<Integer> checkedWeekdays = new ArrayList<>();
-    private Uri ringtoneUri;
+    /*private Uri ringtoneUri;
     private int volume;
     private boolean isVibrationEnabled;
     private int hour, minute;
-    private long date;
+    private long date;*/
     private boolean isNew;
 
     private CustomAlarm alarm;
@@ -105,12 +105,6 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setFields(){
         this.checkedWeekdays = alarm.getCheckedWeekdays();
-        this.date = alarm.getDate();
-        this.ringtoneUri = alarm.getRingtoneUri();
-        this.volume = alarm.getVolume();
-        this.isVibrationEnabled = alarm.isVibrationOn();
-        this.hour = alarm.getHour();
-        this.minute = alarm.getMinute();
         this.isNew = alarm.isNew();
     }
 
@@ -201,13 +195,13 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private View.OnClickListener ringtoneChoiceOpener = v -> {
-        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(getContext(),ringtoneUri);
+        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(getContext(),alarm.getRingtoneUri());
         dialog.setTargetFragment(AlarmDetailFragment.this, 222);
         dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
     };
 
     private void setRingtoneNameTextView(){
-        ringtoneName.setText(RingtoneManager.getRingtone(getContext(),ringtoneUri).getTitle(getContext()));
+        ringtoneName.setText(RingtoneManager.getRingtone(getContext(),alarm.getRingtoneUri()).getTitle(getContext()));
     }
 
     private void setOnRingtoneChoiceOpener(){
@@ -218,26 +212,26 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     @Override
     public void sendRingtoneData(String title, Uri uri) {
         ringtoneName.setText(title);
-        ringtoneUri = uri;
+        alarm.setRingtoneUri(uri);
     }
 
     private void listenForVibrationSetting(){
-        vibrationSwitch.setChecked(isVibrationEnabled);
+        vibrationSwitch.setChecked(alarm.isVibrationOn());
 
         vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            isVibrationEnabled = isChecked;
+            alarm.setVibrationOn(isChecked);
         });
     }
 
     private void setSeekBar(){
         AudioManager manager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         ringtoneVolumeBar.setMax(manager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
-        ringtoneVolumeBar.setProgress(volume);
+        ringtoneVolumeBar.setProgress(alarm.getVolume());
 
         ringtoneVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                volume = progress;
+                alarm.setVolume(progress);
             }
 
             @Override
@@ -256,11 +250,11 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setTimePicker(){
         timePicker.setIs24HourView(true);
-        timePicker.setHour(hour);
-        timePicker.setMinute(minute);
+        timePicker.setHour(alarm.getHour());
+        timePicker.setMinute(alarm.getMinute());
         timePicker.setOnTimeChangedListener((view, newHour, newMinute) -> {
-            hour = newHour;
-            minute = newMinute;
+            alarm.setHour(newHour);
+            alarm.setMinute(newMinute);
             setOverViewTextView();
         });
     }
@@ -269,7 +263,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         setOverViewTextView();
 
         dateSetListener = (view, year, month, dayOfMonth) -> {
-            date = getTimeInMillis(year, month, dayOfMonth);
+            alarm.setDate(getTimeInMillis(year, month, dayOfMonth));
             if (isRepeating()){
                 String msg = getResources().getString(R.string.repeat_disabled_message);
                 Toast toast = Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT);
@@ -302,12 +296,6 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
 
     private void setAlarm(){
         alarm.setCheckedWeekdays(checkedWeekdays);
-        alarm.setDate(date);
-        alarm.setHour(hour);
-        alarm.setMinute(minute);
-        alarm.setRingtoneUri(ringtoneUri);
-        alarm.setVolume(volume);
-        alarm.setVibrationOn(isVibrationEnabled);
         alarm.setNotNew();
     }
 
@@ -341,7 +329,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         if (isRepeating()){
             overviewTextView.setText(Statics.getOverviewTextRepeating(getContext(),checkedWeekdays));
         } else {
-            overviewTextView.setText(Statics.getOverviewTextOneShot(date));
+            overviewTextView.setText(Statics.getOverviewTextOneShot(alarm.getDate()));
         }
     }
 
