@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -52,18 +53,13 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private SeekBar ringtoneVolumeBar;
 
     private ArrayList<Integer> checkedWeekdays = new ArrayList<>();
-    /*private Uri ringtoneUri;
-    private int volume;
-    private boolean isVibrationEnabled;
-    private int hour, minute;
-    private long date;*/
     private boolean isNew;
 
     private CustomAlarm alarm;
     private DatePickerDialog.OnDateSetListener dateSetListener;
     private OnAlarmSettingsSetListener alarmSettingsSetListener;
 
-    public AlarmDetailFragment(CustomAlarm alarm) {
+    AlarmDetailFragment(CustomAlarm alarm) {
         this.alarm = alarm;
         setFields();
     }
@@ -329,7 +325,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         if (isRepeating()){
             overviewTextView.setText(Statics.getOverviewTextRepeating(getContext(),checkedWeekdays));
         } else {
-            overviewTextView.setText(Statics.getOverviewTextOneShot(alarm.getDate()));
+            overviewTextView.setText(Statics.getOverviewTextOneShot(alarm.getNextAlarmTime()));
         }
     }
 

@@ -1,9 +1,18 @@
 package dairungarbayev.app.alarmclock;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -18,12 +27,16 @@ public class MainActivity extends AppCompatActivity
 
     private final String ALARM_JSON_KEY = "alarm_json_";
     private final String ALARMS_COUNTER_KEY = "alarms_counter";
+    private final int CAMERA_PERMISSION_CODE = 123;
     private ArrayList<CustomAlarm> alarmsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkPermissionsGranted();
+
         getData();
 
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
@@ -36,6 +49,30 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         saveData();
+    }
+
+    private void checkPermissionsGranted(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == CAMERA_PERMISSION_CODE){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED){
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.camera_permission_denied)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, (dialog, which) -> checkPermissionsGranted())
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> MainActivity.this.finish())
+                        .create().show();
+            }
+        }
+
     }
 
     private void getData(){
@@ -123,7 +160,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void replaceSettingsToList(){
-        FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+        FragmentManager manager = getSupportFragmentManager();
+        manager.popBackStack();
+        FragmentTransaction transaction = manager.beginTransaction();
         AlarmsListFragment alarmsListFragment = new AlarmsListFragment(alarmsList);
         transaction.replace(R.id.main_activity_view_holder,alarmsListFragment);
         transaction.commit();
@@ -133,7 +172,7 @@ public class MainActivity extends AppCompatActivity
     public void listToNewSettings() {
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(new CustomAlarm(getApplicationContext()));
-        transaction.replace(R.id.main_activity_view_holder,detailFragment);
+        transaction.replace(R.id.main_activity_view_holder,detailFragment).addToBackStack("AlarmsListFragment");
         transaction.commit();
     }
 
@@ -144,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         }
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
-        transaction.replace(R.id.main_activity_view_holder,detailFragment);
+        transaction.replace(R.id.main_activity_view_holder,detailFragment).addToBackStack("AlarmsListFragment");
         transaction.commit();
     }
 
