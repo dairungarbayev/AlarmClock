@@ -76,19 +76,24 @@ public class MainActivity extends AppCompatActivity
         alarmsList.add(alarm);
         alarm.setAlarmOn();
         alarm.showTimeIntervalToast();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putString(ALARM_JSON_KEY+alarm.getId(),alarm.toJsonString());
+        editor.putInt(ALARMS_COUNTER_KEY,CustomAlarm.getCounter());
+        editor.apply();
+
         replaceSettingsToList();
     }
 
     @Override
     public void edit(CustomAlarm alarm) {
-        for (int i = 0; i < alarmsList.size(); i++){
-            if (alarmsList.get(i).getId() == alarm.getId()){
-                alarmsList.set(i, alarm);
-                alarmsList.get(i).setAlarmOn();
-                alarmsList.get(i).showTimeIntervalToast();
-                break;
-            }
-        }
+        editAlarm(alarm);
+
+        alarm.setAlarmOn();
+        alarm.showTimeIntervalToast();
+
         replaceSettingsToList();
     }
 
@@ -102,6 +107,13 @@ public class MainActivity extends AppCompatActivity
                 break;
             }
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.remove(ALARM_JSON_KEY+alarm.getId());
+        editor.apply();
+
         replaceSettingsToList();
     }
 
@@ -134,6 +146,25 @@ public class MainActivity extends AppCompatActivity
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
         transaction.replace(R.id.main_activity_view_holder,detailFragment);
         transaction.commit();
+    }
+
+    @Override
+    public void editAlarmState(CustomAlarm alarm) {
+        editAlarm(alarm);
+    }
+
+    private void editAlarm(CustomAlarm alarm){
+        for (int i = 0; i < alarmsList.size(); i++){
+            if (alarmsList.get(i).getId() == alarm.getId()){
+                alarmsList.set(i, alarm);
+                break;
+            }
+        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putString(ALARM_JSON_KEY+alarm.getId(),alarm.toJsonString());
+        editor.apply();
     }
 
     private void saveData(){

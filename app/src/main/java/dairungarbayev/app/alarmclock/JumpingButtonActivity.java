@@ -135,7 +135,6 @@ public class JumpingButtonActivity extends AppCompatActivity {
         initialRunnable.run();
 
         handler = new Handler();
-        runnable.run();
     }
 
     @Override
@@ -143,6 +142,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
         super.onDestroy();
         handler.removeCallbacks(runnable);
         initialHandler.removeCallbacks(initialRunnable);
+        arFragment = null;
     }
 
     private Runnable initialRunnable = new Runnable() {
@@ -172,7 +172,10 @@ public class JumpingButtonActivity extends AppCompatActivity {
             }
             if (initialPose == null){
                 initialHandler.postDelayed(initialRunnable,1);
-            } else initialHandler.removeCallbacks(initialRunnable);
+            } else {
+                initialHandler.removeCallbacks(initialRunnable);
+                runnable.run();
+            }
         }
     };
 
@@ -187,7 +190,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
                     for (HitResult hit : frame.hitTest((float)(width/2), (float)(height/2))) {
                         Trackable trackable = hit.getTrackable();
 
-                        if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()) && initialPose!=null) {
+                        if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
                             float dist = calculateDistance(initialPose, hit.getHitPose());
 
                             if (dist > 0.8) {

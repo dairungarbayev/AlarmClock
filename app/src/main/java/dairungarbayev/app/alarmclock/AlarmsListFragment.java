@@ -32,6 +32,7 @@ public class AlarmsListFragment extends Fragment {
     interface AlarmsListInterface{
         void listToNewSettings();
         void listToExistingSettings(CustomAlarm alarm);
+        void editAlarmState(CustomAlarm alarm);
     }
 
     private static final String TAG = "AlarmsListFragment";
@@ -131,6 +132,7 @@ public class AlarmsListFragment extends Fragment {
                 alarm.setAlarmOn();
                 alarm.showTimeIntervalToast();
             } else alarm.cancelAlarm();
+            alarmsListInterface.editAlarmState(alarm);
         });
 
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
