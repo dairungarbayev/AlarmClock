@@ -178,9 +178,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void listToExistingSettings(CustomAlarm alarm) {
-        if (alarm.getState()){
-            alarm.cancelAlarm();
-        }
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
         transaction.replace(R.id.main_activity_view_holder,detailFragment).addToBackStack("AlarmsListFragment");
