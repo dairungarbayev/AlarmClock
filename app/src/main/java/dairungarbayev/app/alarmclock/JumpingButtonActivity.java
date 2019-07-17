@@ -47,7 +47,12 @@ public class JumpingButtonActivity extends AppCompatActivity {
     private ViewRenderable walkMessageRenderable;
     private ViewRenderable alarmOffRenderable;
 
-    private FloatingActionButton turnOffButton;
+    private AnchorNode referenceAnchorNode;
+    private AnchorNode offAnchorNode;
+    private Node walkMessageNode;
+    private Node offNode;
+
+    private FloatingActionButton turnOffButton, refreshButton;
     private CustomAlarm alarm;
 
     private MediaPlayer player;
@@ -115,6 +120,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
 
 
         arFragment =(ArFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_ar_dismiss_alarm);
+        refreshButton = findViewById(R.id.button_refresh_ar_fragment);
 
         ViewRenderable.builder()
                 .setView(this,R.layout.message_walk)
@@ -146,6 +152,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
         initialRunnable.run();
 
         handler = new Handler();
+        setRefreshButtonListener();
     }
 
     @Override
@@ -171,11 +178,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
                             Plane plane = (Plane) trackable;
 
                             Anchor anchor = plane.createAnchor(hit.getHitPose());
-                            AnchorNode anchorNode = new AnchorNode(anchor);
-                            anchorNode.setParent(arFragment.getArSceneView().getScene());
+                            referenceAnchorNode = new AnchorNode(anchor);
+                            referenceAnchorNode.setParent(arFragment.getArSceneView().getScene());
 
-                            Node walkMessageNode = new Node();
-                            walkMessageNode.setParent(anchorNode);
+                            walkMessageNode = new Node();
+                            referenceAnchorNode.addChild(walkMessageNode);
                             walkMessageNode.setRenderable(walkMessageRenderable);
                         }
                     }
@@ -208,11 +215,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
                                 Plane plane = (Plane) trackable;
 
                                 Anchor anchor = plane.createAnchor(hit.getHitPose());
-                                AnchorNode anchorNode = new AnchorNode(anchor);
-                                anchorNode.setParent(arFragment.getArSceneView().getScene());
+                                offAnchorNode = new AnchorNode(anchor);
+                                offAnchorNode.setParent(arFragment.getArSceneView().getScene());
 
-                                Node offNode = new Node();
-                                offNode.setParent(anchorNode);
+                                offNode = new Node();
+                                offAnchorNode.addChild(offNode);
                                 offNode.setRenderable(alarmOffRenderable);
 
                                 turnOffButton = alarmOffRenderable.getView().findViewById(R.id.button_dismiss_alarm);
@@ -244,6 +251,32 @@ public class JumpingButtonActivity extends AppCompatActivity {
             } else handler.postDelayed(runnable,1);
         }
     };
+
+    private void setRefreshButtonListener(){
+        refreshButton.setOnClickListener(v -> {
+            initialHandler.removeCallbacks(initialRunnable);
+            handler.removeCallbacks(runnable);
+
+            if (referenceAnchorNode != null && walkMessageNode != null){
+                referenceAnchorNode.removeChild(walkMessageNode);
+                arFragment.getArSceneView().getScene().removeChild(referenceAnchorNode);
+                referenceAnchorNode.getAnchor().detach();
+                referenceAnchorNode.setParent(null);
+                referenceAnchorNode = null;
+                initialPose = null;
+            }
+
+            if (offAnchorNode != null && offNode != null){
+                offAnchorNode.removeChild(offNode);
+                arFragment.getArSceneView().getScene().removeChild(offAnchorNode);
+                offAnchorNode.getAnchor().detach();
+                offAnchorNode.setParent(null);
+                offAnchorNode = null;
+            }
+
+            initialRunnable.run();
+        });
+    }
 
     private float calculateDistance(Pose startPose, Pose endPose){
         float dx = startPose.tx() - endPose.tx();

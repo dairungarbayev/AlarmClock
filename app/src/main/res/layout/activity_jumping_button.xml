@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,4 +13,13 @@
         android:layout_height="match_parent"
         android:id="@+id/fragment_ar_dismiss_alarm"/>
 
-</RelativeLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:backgroundTint="@android:color/white"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_refresh_ar_fragment"
+        android:id="@+id/button_refresh_ar_fragment"/>
+
+</FrameLayout>
