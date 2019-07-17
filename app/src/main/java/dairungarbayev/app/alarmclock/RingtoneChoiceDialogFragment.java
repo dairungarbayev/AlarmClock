@@ -83,6 +83,19 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
         setOkButton();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ringtone.stop();
+    }
+
     private void getReferencesToViews(){
         View view = getView();
         radioGroup = view.findViewById(R.id.radio_group_ringtones);

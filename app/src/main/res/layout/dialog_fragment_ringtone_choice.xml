@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +7,33 @@
     tools:context=".RingtoneChoiceDialogFragment"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:id="@+id/button_cancel_ringtone_choice"
+                android:textColor="@android:color/black"
+                style="?android:attr/buttonBarButtonStyle" />
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/ok"
+                android:id="@+id/button_ok_ringtone_choice"
+                android:textColor="@android:color/black"
+                style="?android:attr/buttonBarButtonStyle"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -16,32 +42,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/radio_group_ringtones"/>
+    </ScrollView>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/cancel"
-                    android:id="@+id/button_cancel_ringtone_choice"
-                    android:textColor="@android:color/black"
-                    style="?android:attr/buttonBarButtonStyle" />
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/ok"
-                    android:id="@+id/button_ok_ringtone_choice"
-                    android:textColor="@android:color/black"
-                    style="?android:attr/buttonBarButtonStyle"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

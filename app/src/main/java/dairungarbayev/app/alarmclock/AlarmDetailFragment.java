@@ -191,9 +191,11 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     }
 
     private View.OnClickListener ringtoneChoiceOpener = v -> {
-        RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(getContext(),alarm.getRingtoneUri());
-        dialog.setTargetFragment(AlarmDetailFragment.this, 222);
-        dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
+        if (getFragmentManager().findFragmentByTag("RingtoneChoiceDialog") == null) {
+            RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(getContext(), alarm.getRingtoneUri());
+            dialog.setTargetFragment(AlarmDetailFragment.this, 222);
+            dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
+        }
     };
 
     private void setRingtoneNameTextView(){
