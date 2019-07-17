@@ -156,6 +156,21 @@ public class JumpingButtonActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (alarm != null){
+            if (alarm.isRepeating()){
+                alarm.setAlarmOn();
+            } else alarm.cancelAlarm();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
+            editor.apply();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(runnable);
@@ -171,8 +186,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
                 if (frame.getCamera().getTrackingState() == TrackingState.TRACKING){
                     for (HitResult hit : frame.hitTest((float)(width/2), (float)(height/2))) {
                         Trackable trackable = hit.getTrackable();
-
-                        if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())){
+                        float dist = calculateDistance(arFragment.getArSceneView().getArFrame().getCamera().getPose(),
+                                hit.getHitPose());
+                        if (trackable instanceof Plane
+                                && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
+                                && dist < 1){
                             initialPose = hit.getHitPose();
 
                             Plane plane = (Plane) trackable;
@@ -211,7 +229,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
                         if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
                             float dist = calculateDistance(initialPose, hit.getHitPose());
 
-                            if (dist > 0.8) {
+                            if (dist > 4) {
                                 Plane plane = (Plane) trackable;
 
                                 Anchor anchor = plane.createAnchor(hit.getHitPose());
@@ -229,15 +247,6 @@ public class JumpingButtonActivity extends AppCompatActivity {
                                         vibrator.cancel();
                                     }
 
-                                    if (alarm != null){
-                                        if (alarm.isRepeating()){
-                                            alarm.setAlarmOn();
-                                        } else alarm.cancelAlarm();
-                                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                        SharedPreferences.Editor editor = prefs.edit();
-                                        editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
-                                        editor.apply();
-                                    }
                                     finish();
                                 });
                                 complete = true;

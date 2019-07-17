@@ -66,7 +66,7 @@ class CustomAlarm {
     }
 
     void setAlarmOn(){
-        getAlarmManager().setExact(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
+        getAlarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
         state = true;
     }
 
