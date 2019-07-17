@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity
     private final int CAMERA_PERMISSION_CODE = 123;
     private ArrayList<CustomAlarm> alarmsList = new ArrayList<>();
 
+    private boolean isListInflated;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +45,20 @@ public class MainActivity extends AppCompatActivity
         AlarmsListFragment alarmsListFragment = new AlarmsListFragment(alarmsList);
         transaction.add(R.id.main_activity_view_holder,alarmsListFragment);
         transaction.commit();
+        isListInflated = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getData();
+
+        if (isListInflated){
+            FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+            AlarmsListFragment alarmsListFragment = new AlarmsListFragment(alarmsList);
+            transaction.replace(R.id.main_activity_view_holder,alarmsListFragment);
+            transaction.commit();
+        }
     }
 
     @Override
@@ -87,6 +103,8 @@ public class MainActivity extends AppCompatActivity
         editor = prefs.edit();
 
         ArrayList<String> alarmJsons = new ArrayList(prefs.getAll().values());
+
+        alarmsList.clear();
 
         if (alarmJsons.size() != 0){
             for (int i = 0; i < alarmJsons.size(); i++){
@@ -166,6 +184,7 @@ public class MainActivity extends AppCompatActivity
         AlarmsListFragment alarmsListFragment = new AlarmsListFragment(alarmsList);
         transaction.replace(R.id.main_activity_view_holder,alarmsListFragment);
         transaction.commit();
+        isListInflated = true;
     }
 
     @Override
@@ -174,6 +193,7 @@ public class MainActivity extends AppCompatActivity
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(new CustomAlarm(getApplicationContext()));
         transaction.replace(R.id.main_activity_view_holder,detailFragment).addToBackStack("AlarmsListFragment");
         transaction.commit();
+        isListInflated = false;
     }
 
     @Override
@@ -182,6 +202,7 @@ public class MainActivity extends AppCompatActivity
         AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
         transaction.replace(R.id.main_activity_view_holder,detailFragment).addToBackStack("AlarmsListFragment");
         transaction.commit();
+        isListInflated = false;
     }
 
     @Override
