@@ -4,6 +4,5 @@
 
     <dimen name="ringtone_radio_button_margin">5dp</dimen>
 
-    <dimen name="time_text_size">10sp</dimen>
     <dimen name="alarm_card_margin">15dp</dimen>
 </resources>

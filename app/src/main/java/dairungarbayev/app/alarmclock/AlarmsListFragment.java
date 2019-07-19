@@ -97,7 +97,8 @@ public class AlarmsListFragment extends Fragment {
         TextView timeView = new TextView(getContext());
         String timeText = String.format("%02d",alarm.getHour())+":"+String.format("%02d",alarm.getMinute());
         timeView.setText(timeText);
-        timeView.setTextSize(getResources().getDimensionPixelSize(R.dimen.time_text_size));
+        int timeViewId = View.generateViewId();
+        timeView.setId(timeViewId);
         RelativeLayout.LayoutParams timeParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         timeParams.addRule(RelativeLayout.ALIGN_PARENT_START);
@@ -111,10 +112,11 @@ public class AlarmsListFragment extends Fragment {
         if (alarm.isRepeating()){
             overview.setText(Statics.getOverviewTextRepeating(getContext(),alarm.getCheckedWeekdays()));
         } else overview.setText(Statics.getOverviewTextOneShot(alarm.getNextAlarmTime()));
-        overview.setTextSize(getResources().getDimensionPixelSize(R.dimen.time_text_size));
         RelativeLayout.LayoutParams overviewParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        overviewParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        overviewParams.addRule(RelativeLayout.BELOW, timeViewId);
+        overviewParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+        overviewParams.leftMargin = margin;
         overview.setLayoutParams(overviewParams);
         layout.addView(overview);
 
