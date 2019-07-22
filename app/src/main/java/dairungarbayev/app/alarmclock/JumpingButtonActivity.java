@@ -186,8 +186,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
                 if (frame.getCamera().getTrackingState() == TrackingState.TRACKING){
                     for (HitResult hit : frame.hitTest((float)(width/2), (float)(height/2))) {
                         Trackable trackable = hit.getTrackable();
-                        float dist = calculateDistance(arFragment.getArSceneView().getArFrame().getCamera().getPose(),
-                                hit.getHitPose());
+                        float dist = calculateDistance(frame.getCamera().getPose(), hit.getHitPose());
                         if (trackable instanceof Plane
                                 && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
                                 && dist < 1){
@@ -227,9 +226,10 @@ public class JumpingButtonActivity extends AppCompatActivity {
                         Trackable trackable = hit.getTrackable();
 
                         if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
-                            float dist = calculateDistance(initialPose, hit.getHitPose());
+                            float distFromInitialPose = calculateDistance(initialPose, hit.getHitPose());
+                            float distFromCamera = calculateDistance(frame.getCamera().getPose(), hit.getHitPose());
 
-                            if (dist > 4) {
+                            if (distFromInitialPose > 4 && distFromCamera < 1) {
                                 Plane plane = (Plane) trackable;
 
                                 Anchor anchor = plane.createAnchor(hit.getHitPose());
