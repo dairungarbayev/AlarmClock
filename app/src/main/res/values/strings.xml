@@ -25,7 +25,5 @@
     <string name="hour">h.</string>
     <string name="minute">m.</string>
 
-    <string name="walk_away">WALK AWAY FROM HERE</string>
-
     <string name="camera_permission_denied">Please understand that the app will not work without your permission to use the Camera</string>
 </resources>

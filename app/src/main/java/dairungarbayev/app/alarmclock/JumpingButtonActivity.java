@@ -44,12 +44,9 @@ public class JumpingButtonActivity extends AppCompatActivity {
     private final String ALARM_JSON_KEY = "alarm_json_";
 
     private ArFragment arFragment;
-    private ViewRenderable walkMessageRenderable;
     private ViewRenderable alarmOffRenderable;
 
-    private AnchorNode referenceAnchorNode;
     private AnchorNode offAnchorNode;
-    private Node walkMessageNode;
     private Node offNode;
 
     private FloatingActionButton turnOffButton, refreshButton;
@@ -123,16 +120,6 @@ public class JumpingButtonActivity extends AppCompatActivity {
         refreshButton = findViewById(R.id.button_refresh_ar_fragment);
 
         ViewRenderable.builder()
-                .setView(this,R.layout.message_walk)
-                .build()
-                .thenAccept(viewRenderable -> walkMessageRenderable = viewRenderable)
-                .exceptionally(throwable -> {
-                    Toast toast = Toast.makeText(this,"Error building walk message", Toast.LENGTH_SHORT);
-                    toast.show();
-                    return null;
-                });
-
-        ViewRenderable.builder()
                 .setView(this,R.layout.layout_dismiss_alarm)
                 .build()
                 .thenAccept(viewRenderable -> alarmOffRenderable = viewRenderable)
@@ -184,30 +171,13 @@ public class JumpingButtonActivity extends AppCompatActivity {
             Frame frame = arFragment.getArSceneView().getArFrame();
             if (frame != null){
                 if (frame.getCamera().getTrackingState() == TrackingState.TRACKING){
-                    for (HitResult hit : frame.hitTest((float)(width/2), (float)(height/2))) {
-                        Trackable trackable = hit.getTrackable();
-                        float dist = calculateDistance(frame.getCamera().getPose(), hit.getHitPose());
-                        if (trackable instanceof Plane
-                                && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
-                                && dist < 1){
-                            initialPose = hit.getHitPose();
-
-                            Plane plane = (Plane) trackable;
-
-                            Anchor anchor = plane.createAnchor(hit.getHitPose());
-                            referenceAnchorNode = new AnchorNode(anchor);
-                            referenceAnchorNode.setParent(arFragment.getArSceneView().getScene());
-
-                            walkMessageNode = new Node();
-                            referenceAnchorNode.addChild(walkMessageNode);
-                            walkMessageNode.setRenderable(walkMessageRenderable);
-                        }
-                    }
+                    initialPose = frame.getCamera().getPose();
                 }
             }
             if (initialPose == null){
                 initialHandler.postDelayed(initialRunnable,1);
             } else {
+                Toast.makeText(JumpingButtonActivity.this,"Initial pose found",Toast.LENGTH_SHORT).show();
                 initialHandler.removeCallbacks(initialRunnable);
                 runnable.run();
             }
@@ -266,16 +236,8 @@ public class JumpingButtonActivity extends AppCompatActivity {
             initialHandler.removeCallbacks(initialRunnable);
             handler.removeCallbacks(runnable);
 
-            if (referenceAnchorNode != null && walkMessageNode != null){
-                referenceAnchorNode.removeChild(walkMessageNode);
-                arFragment.getArSceneView().getScene().removeChild(referenceAnchorNode);
-                referenceAnchorNode.getAnchor().detach();
-                referenceAnchorNode.setParent(null);
-                referenceAnchorNode = null;
-                initialPose = null;
-            }
-
             if (offAnchorNode != null && offNode != null){
+                initialPose = null;
                 offAnchorNode.removeChild(offNode);
                 arFragment.getArSceneView().getScene().removeChild(offAnchorNode);
                 offAnchorNode.getAnchor().detach();
