@@ -70,6 +70,14 @@ class CustomAlarm {
         state = true;
     }
 
+    void postpone(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND,3);
+        getAlarmManager().setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),getPendingIntent());
+        state = true;
+    }
+
     void cancelAlarm(){
         getAlarmManager().cancel(getPendingIntent());
         state = false;

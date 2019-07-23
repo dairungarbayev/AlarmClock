@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -40,6 +41,9 @@ import java.io.IOException;
 
 public class JumpingButtonActivity extends AppCompatActivity {
 
+    private static final String TAG = "JumpingButtonActivity";
+    private int onPauseCounter = 1;
+
     private final String ALARM_ID = "alarm_id";
     private final String ALARM_JSON_KEY = "alarm_json_";
 
@@ -59,6 +63,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
     private Handler initialHandler;
     private int height, width;
     private Pose initialPose;
+    private boolean offButtonClicked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,18 +148,29 @@ public class JumpingButtonActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (alarm != null){
-            if (alarm.isRepeating()){
-                alarm.setAlarmOn();
-            } else alarm.cancelAlarm();
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: ");
+        if (alarm != null && onPauseCounter > 1){
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
             editor.apply();
+            if (offButtonClicked) {
+                if (alarm.isRepeating()) {
+                    alarm.setAlarmOn();
+                } else alarm.cancelAlarm();
+            } else {
+                alarm.postpone();
+                player.stop();
+                if (alarm.isVibrationOn()){
+                    vibrator.cancel();
+                }
+                finish();
+                Log.d(TAG, "onPause: if off buttonnot clicked");
+            }
         }
+        onPauseCounter++;
     }
 
     @Override
@@ -199,7 +215,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
                             float distFromInitialPose = calculateDistance(initialPose, hit.getHitPose());
                             float distFromCamera = calculateDistance(frame.getCamera().getPose(), hit.getHitPose());
 
-                            if (distFromInitialPose > 4 && distFromCamera < 1) {
+                            if (distFromInitialPose > 5 && distFromCamera < 1) {
                                 Plane plane = (Plane) trackable;
 
                                 Anchor anchor = plane.createAnchor(hit.getHitPose());
@@ -216,6 +232,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
                                     if (alarm.isVibrationOn()){
                                         vibrator.cancel();
                                     }
+                                    offButtonClicked = true;
 
                                     finish();
                                 });
