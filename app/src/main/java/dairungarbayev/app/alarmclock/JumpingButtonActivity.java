@@ -152,10 +152,6 @@ public class JumpingButtonActivity extends AppCompatActivity {
         super.onPause();
         Log.d(TAG, "onPause: ");
         if (alarm != null && onPauseCounter > 1){
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
-            editor.apply();
             if (offButtonClicked) {
                 if (alarm.isRepeating()) {
                     alarm.setAlarmOn();
@@ -169,6 +165,10 @@ public class JumpingButtonActivity extends AppCompatActivity {
                 finish();
                 Log.d(TAG, "onPause: if off buttonnot clicked");
             }
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
+            editor.apply();
         }
         onPauseCounter++;
     }
@@ -212,10 +212,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
                         Trackable trackable = hit.getTrackable();
 
                         if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
-                            float distFromInitialPose = calculateDistance(initialPose, hit.getHitPose());
-                            float distFromCamera = calculateDistance(frame.getCamera().getPose(), hit.getHitPose());
+                            Pose cameraPose = frame.getCamera().getPose();
+                            float distFromInitialPose = calculateDistance(initialPose, cameraPose);
+                            float distFromCamera = calculateDistance(cameraPose, hit.getHitPose());
 
-                            if (distFromInitialPose > 5 && distFromCamera < 1) {
+                            if (distFromInitialPose > 4 && distFromCamera < 1.3) {
                                 Plane plane = (Plane) trackable;
 
                                 Anchor anchor = plane.createAnchor(hit.getHitPose());
