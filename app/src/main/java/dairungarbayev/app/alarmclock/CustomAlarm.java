@@ -66,15 +66,16 @@ class CustomAlarm {
     }
 
     void setAlarmOn(){
-        getAlarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
+        //getAlarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,getNextAlarmTime(),getPendingIntent());
+        getAlarmManager().setAlarmClock(getAlarmInfo(getNextAlarmTime()),getPendingIntent());
         state = true;
     }
 
     void postpone(){
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.SECOND,3);
-        getAlarmManager().setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),getPendingIntent());
+        //getAlarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),getPendingIntent());
+        getAlarmManager().setAlarmClock(getAlarmInfo(calendar.getTimeInMillis()),getPendingIntent());
         state = true;
     }
 
@@ -91,6 +92,12 @@ class CustomAlarm {
         Intent intent = new Intent(appContext, JumpingButtonActivity.class);
         intent.putExtra(ALARM_ID,id);
         return PendingIntent.getActivity(appContext,id,intent,PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private AlarmManager.AlarmClockInfo getAlarmInfo(long triggerTime){
+        Intent intent = new Intent(appContext, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(appContext,1,intent,0);
+        return new AlarmManager.AlarmClockInfo(triggerTime,pendingIntent);
     }
 
     long getNextAlarmTime(){

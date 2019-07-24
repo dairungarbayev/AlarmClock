@@ -174,6 +174,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        //nothing
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(runnable);
