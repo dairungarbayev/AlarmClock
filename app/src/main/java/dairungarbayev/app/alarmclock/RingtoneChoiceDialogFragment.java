@@ -3,6 +3,9 @@ package dairungarbayev.app.alarmclock;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -20,8 +23,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -33,27 +38,29 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     private static final String TAG = "RingtoneChoiceDialog";
 
     public interface OnRingtoneChosen{
-        void sendRingtoneData(String title, Uri uri);
+        void sendRingtoneData(String title, Uri uri, int volume);
     }
 
     private OnRingtoneChosen onRingtoneChosen;
 
     private RadioGroup radioGroup;
     private Button cancelButton, okButton;
+    private SeekBar seekBar;
 
     private ArrayList<String> titles;
     private ArrayList<Uri> uris;
     private Uri checkedUri;
     private String checkedTitle;
 
-    private Ringtone ringtone;
+    private MediaPlayer player = new MediaPlayer();
+    private int maxVolume, volume;
 
-    RingtoneChoiceDialogFragment(Context context, Uri uri){
+    RingtoneChoiceDialogFragment(Context context, Uri uri, int volume){
         titles = new ArrayList<>();
         uris = new ArrayList<>();
         checkedUri = uri;
-        ringtone = RingtoneManager.getRingtone(context,uri);
-        checkedTitle = ringtone.getTitle(context);
+        checkedTitle = RingtoneManager.getRingtone(context,uri).getTitle(context);
+        this.volume = volume;
     }
 
     @Override
@@ -74,9 +81,13 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
         getReferencesToViews();
+        setSeekBar();
+        setPlayer();
         getRingtoneData();
         populateRadioGroup();
         setCancelButton();
@@ -84,16 +95,15 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        ringtone.stop();
+    public void onDestroyView() {
+        super.onDestroyView();
+        player.stop();
+        player.release();
     }
 
     private void getReferencesToViews(){
@@ -101,6 +111,7 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
         radioGroup = view.findViewById(R.id.radio_group_ringtones);
         cancelButton = view.findViewById(R.id.button_cancel_ringtone_choice);
         okButton = view.findViewById(R.id.button_ok_ringtone_choice);
+        seekBar = view.findViewById(R.id.seek_bar_ringtone_volume_secondary);
     }
 
     private void getRingtoneData(){
@@ -138,22 +149,67 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
             radioButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ringtone.stop();
+                    player.stop();
                     radioButton.toggle();
 
                     checkedTitle = title;
                     checkedUri = uri;
 
-                    ringtone = RingtoneManager.getRingtone(getContext(),uri);
-                    ringtone.play();
+                    player.reset();
+                    setPlayer();
+                    player.start();
                 }
             });
         }
     }
 
+    private void setPlayer(){
+        player.setAudioAttributes(
+                new AudioAttributes.Builder()
+                        .setLegacyStreamType(AudioManager.STREAM_ALARM).build());
+        player.setLooping(false);
+        try {
+            player.setDataSource(getContext(), checkedUri);
+            player.prepare();
+        } catch (IOException e){
+            Toast toast = Toast.makeText(getContext(),"Error",Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        setVolume(volume);
+    }
+
+    private void setVolume(int volume){
+        AudioManager manager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+        manager.setStreamVolume(AudioManager.STREAM_ALARM,volume,0);
+    }
+
+    private void setSeekBar(){
+        AudioManager manager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+        maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+        seekBar.setMax(maxVolume);
+        seekBar.setProgress(volume);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                volume = progress;
+                setVolume(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
     private void setCancelButton(){
         cancelButton.setOnClickListener(v -> {
-            ringtone.stop();
+            player.stop();
             getDialog().dismiss();
         });
     }
@@ -161,8 +217,8 @@ public class RingtoneChoiceDialogFragment extends DialogFragment {
     private void setOkButton(){
         okButton.setOnClickListener(v -> {
             if (radioGroup.getCheckedRadioButtonId() != -1 && !checkedTitle.equals("") && !checkedUri.equals(Uri.EMPTY)){
-                onRingtoneChosen.sendRingtoneData(checkedTitle, checkedUri);
-                ringtone.stop();
+                onRingtoneChosen.sendRingtoneData(checkedTitle, checkedUri, volume);
+                player.stop();
                 getDialog().dismiss();
             } else {
                 String text = getResources().getString(R.string.please_choose_ringtone);

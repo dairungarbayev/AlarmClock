@@ -33,6 +33,17 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:id="@+id/seek_bar_ringtone_volume_secondary"/>
+    </androidx.cardview.widget.CardView>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

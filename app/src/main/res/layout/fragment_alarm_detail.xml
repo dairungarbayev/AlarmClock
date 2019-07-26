@@ -147,10 +147,8 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            android:layout_marginTop="10dp"
+            android:id="@+id/card_view_ringtone">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -163,20 +161,26 @@
                         android:textSize="20sp"
                         android:layout_marginStart="10dp"
                         android:paddingBottom="10dp"
-                        android:layout_weight="1"
-                        android:id="@+id/label_final_ringtone"/>
+                        android:layout_weight="1" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/label_ringtone_name"
-                        android:paddingBottom="10dp"/>
+                        android:paddingBottom="10dp"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"/>
                 </LinearLayout>
-                <SeekBar
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/seek_bar_ringtone_volume"
-                    android:layout_below="@id/layout_ringtone_choice"/>
-            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/seek_bar_ringtone_volume"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"/>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView

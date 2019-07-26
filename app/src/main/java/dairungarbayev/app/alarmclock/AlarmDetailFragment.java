@@ -48,9 +48,10 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
     private TimePicker timePicker;
     private ToggleButton mondayToggle, tuesdayToggle, wednesdayToggle, thursdayToggle,
                             fridayToggle, saturdayToggle, sundayToggle;
-    private TextView ringtoneName, ringtoneLabel;
+    private TextView ringtoneName;
     private Switch vibrationSwitch;
     private SeekBar ringtoneVolumeBar;
+    private CardView cardViewRingtone;
 
     private ArrayList<Integer> checkedWeekdays = new ArrayList<>();
     private boolean isNew;
@@ -123,7 +124,7 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         sundayToggle = view.findViewById(R.id.toggle_sunday);
 
         ringtoneName = view.findViewById(R.id.label_ringtone_name);
-        ringtoneLabel = view.findViewById(R.id.label_final_ringtone);
+        cardViewRingtone = view.findViewById(R.id.card_view_ringtone);
         vibrationSwitch = view.findViewById(R.id.switch_vibration);
         ringtoneVolumeBar = view.findViewById(R.id.seek_bar_ringtone_volume);
     }
@@ -190,27 +191,27 @@ public class AlarmDetailFragment extends Fragment implements RingtoneChoiceDialo
         }
     }
 
-    private View.OnClickListener ringtoneChoiceOpener = v -> {
-        if (getFragmentManager().findFragmentByTag("RingtoneChoiceDialog") == null) {
-            RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(getContext(), alarm.getRingtoneUri());
-            dialog.setTargetFragment(AlarmDetailFragment.this, 222);
-            dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
-        }
-    };
-
     private void setRingtoneNameTextView(){
         ringtoneName.setText(RingtoneManager.getRingtone(getContext(),alarm.getRingtoneUri()).getTitle(getContext()));
     }
 
     private void setOnRingtoneChoiceOpener(){
-        ringtoneName.setOnClickListener(ringtoneChoiceOpener);
-        ringtoneLabel.setOnClickListener(ringtoneChoiceOpener);
+        cardViewRingtone.setOnClickListener(v -> {
+            if (getFragmentManager().findFragmentByTag("RingtoneChoiceDialog") == null) {
+                RingtoneChoiceDialogFragment dialog = new RingtoneChoiceDialogFragment(
+                        getContext(), alarm.getRingtoneUri(), alarm.getVolume());
+                dialog.setTargetFragment(AlarmDetailFragment.this, 222);
+                dialog.show(getFragmentManager(), "RingtoneChoiceDialog");
+            }
+        });
     }
 
     @Override
-    public void sendRingtoneData(String title, Uri uri) {
+    public void sendRingtoneData(String title, Uri uri, int volume) {
         ringtoneName.setText(title);
         alarm.setRingtoneUri(uri);
+        alarm.setVolume(volume);
+        ringtoneVolumeBar.setProgress(volume);
     }
 
     private void listenForVibrationSetting(){
