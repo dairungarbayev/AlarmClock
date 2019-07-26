@@ -152,23 +152,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
         super.onPause();
         Log.d(TAG, "onPause: ");
         if (alarm != null && onPauseCounter > 1){
-            if (offButtonClicked) {
-                if (alarm.isRepeating()) {
-                    alarm.setAlarmOn();
-                } else alarm.cancelAlarm();
-            } else {
+            if (!offButtonClicked) {
                 alarm.postpone();
-                player.stop();
-                if (alarm.isVibrationOn()){
-                    vibrator.cancel();
-                }
-                finish();
+                stopAndSave();
                 Log.d(TAG, "onPause: if off buttonnot clicked");
             }
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
-            editor.apply();
         }
         onPauseCounter++;
     }
@@ -234,13 +222,11 @@ public class JumpingButtonActivity extends AppCompatActivity {
 
                                 turnOffButton = alarmOffRenderable.getView().findViewById(R.id.button_dismiss_alarm);
                                 turnOffButton.setOnClickListener(v -> {
-                                    player.stop();
-                                    if (alarm.isVibrationOn()){
-                                        vibrator.cancel();
-                                    }
                                     offButtonClicked = true;
-
-                                    finish();
+                                    if (alarm.isRepeating()) {
+                                        alarm.setAlarmOn();
+                                    } else alarm.cancelAlarm();
+                                    stopAndSave();
                                 });
                                 complete = true;
                             }
@@ -270,6 +256,20 @@ public class JumpingButtonActivity extends AppCompatActivity {
 
             initialRunnable.run();
         });
+    }
+
+    private void stopAndSave(){
+        player.stop();
+        if (alarm.isVibrationOn()){
+            vibrator.cancel();
+        }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(ALARM_JSON_KEY + alarm.getId(), alarm.toJsonString());
+        editor.apply();
+
+        finish();
     }
 
     private float calculateDistance(Pose startPose, Pose endPose){
