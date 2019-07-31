@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void listToExistingSettings(CustomAlarm alarm) {
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
-        AlarmDetailFragment detailFragment = new AlarmDetailFragment(alarm);
+        AlarmDetailFragment detailFragment = new AlarmDetailFragment(new CustomAlarm(getApplicationContext(),alarm.toJsonString()));
         transaction.replace(R.id.main_activity_view_holder,detailFragment).addToBackStack("AlarmsListFragment");
         transaction.commit();
         isListInflated = false;
