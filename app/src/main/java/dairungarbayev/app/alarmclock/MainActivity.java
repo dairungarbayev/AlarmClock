@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity
         implements AlarmDetailFragment.OnAlarmSettingsSetListener, AlarmsListFragment.AlarmsListInterface {
 
     private final String ALARM_JSON_KEY = "alarm_json_";
-    private final String ALARMS_COUNTER_KEY = "alarms_counter";
     private final int CAMERA_PERMISSION_CODE = 123;
     private ArrayList<CustomAlarm> alarmsList = new ArrayList<>();
 
@@ -93,37 +92,26 @@ public class MainActivity extends AppCompatActivity
 
     private void getData(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = prefs.edit();
 
-        CustomAlarm.setCounter(prefs.getInt(ALARMS_COUNTER_KEY,1));
-        editor.remove(ALARMS_COUNTER_KEY);
-        editor.apply();
-
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        editor = prefs.edit();
 
         ArrayList<String> alarmJsons = new ArrayList(prefs.getAll().values());
 
         alarmsList.clear();
 
-        if (alarmJsons.size() != 0){
-            for (int i = 0; i < alarmJsons.size(); i++){
-                if (!alarmJsons.get(i).isEmpty()) {
-                    alarmsList.add(new CustomAlarm(getApplicationContext(), alarmJsons.get(i)));
-                }
+        int size = alarmJsons.size();
+        if (size != 0){
+            for (int i = 0; i < size; i++){
+                alarmsList.add(new CustomAlarm(getApplicationContext(), alarmJsons.get(i)));
             }
-            editor.putInt(ALARMS_COUNTER_KEY, CustomAlarm.getCounter());
-            editor.apply();
 
-            if (!alarmsList.isEmpty()){
-                Collections.sort(alarmsList, new Comparator<CustomAlarm>() {
-                    @Override
-                    public int compare(CustomAlarm alarm1, CustomAlarm alarm2) {
-                        return alarm1.getId() - alarm2.getId();
-                    }
-                });
-            }
-        }
+            Collections.sort(alarmsList, new Comparator<CustomAlarm>() {
+                @Override
+                public int compare(CustomAlarm alarm1, CustomAlarm alarm2) {
+                    return alarm1.getId() - alarm2.getId();
+                }
+            });
+            CustomAlarm.setCounter(alarmsList.get(alarmsList.size() - 1).getId() + 1);
+        } else CustomAlarm.setCounter(1);
     }
 
     @Override
@@ -136,7 +124,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = prefs.edit();
 
         editor.putString(ALARM_JSON_KEY+alarm.getId(),alarm.toJsonString());
-        editor.putInt(ALARMS_COUNTER_KEY,CustomAlarm.getCounter());
         editor.apply();
 
         replaceSettingsToList();
@@ -155,7 +142,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void delete(CustomAlarm alarm) {
         alarm.cancelAlarm();
-        for (int i = 0; i < alarmsList.size(); i++){
+        int size = alarmsList.size();
+        for (int i = 0; i < size; i++){
             if (alarmsList.get(i).getId() == alarm.getId()){
                 alarmsList.get(i).cancelAlarm();
                 alarmsList.remove(i);
@@ -211,7 +199,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void editAlarm(CustomAlarm alarm){
-        for (int i = 0; i < alarmsList.size(); i++){
+        int size = alarmsList.size();
+        for (int i = 0; i < size; i++){
             if (alarmsList.get(i).getId() == alarm.getId()){
                 alarmsList.set(i, alarm);
                 break;
@@ -234,12 +223,11 @@ public class MainActivity extends AppCompatActivity
             prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             editor = prefs.edit();
         }
-        CustomAlarm alarm;
-        for (int i = 0; i < alarmsList.size(); i++){
-            alarm = alarmsList.get(i);
+
+        for (CustomAlarm alarm : alarmsList){
             editor.putString(ALARM_JSON_KEY+alarm.getId(), alarm.toJsonString());
         }
-        editor.putInt(ALARMS_COUNTER_KEY, CustomAlarm.getCounter());
+
         editor.apply();
     }
 }

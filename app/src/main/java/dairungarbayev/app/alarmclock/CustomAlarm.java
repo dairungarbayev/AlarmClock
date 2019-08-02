@@ -236,10 +236,6 @@ class CustomAlarm {
         return state;
     }
 
-    public static int getCounter() {
-        return counter;
-    }
-
     void showTimeIntervalToast(){
         long interval = getNextAlarmTime() - Calendar.getInstance().getTimeInMillis();
         long days = interval / 86400000L;
