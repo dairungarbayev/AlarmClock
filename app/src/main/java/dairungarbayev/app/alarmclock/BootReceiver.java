@@ -12,7 +12,8 @@ public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
+        if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction()) ||
+                Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
             if (prefs.getAll().size() > 0) {
                 ArrayList<String> jsonList = new ArrayList(prefs.getAll().values());
