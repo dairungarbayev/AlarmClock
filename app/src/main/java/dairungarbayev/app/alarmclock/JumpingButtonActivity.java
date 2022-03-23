@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
+import com.google.ar.core.Camera;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
@@ -199,8 +200,32 @@ public class JumpingButtonActivity extends AppCompatActivity {
                 if (frame.getCamera().getTrackingState() == TrackingState.TRACKING){
                     for (HitResult hit : frame.hitTest((float)(width/2), (float)(height/2))) {
                         Trackable trackable = hit.getTrackable();
+                        Camera camera = frame.getCamera();
+                        if (calculateDistance(initialPose,camera.getPose()) > 4){
+                            Anchor anchor = arFragment.getArSceneView().getSession().createAnchor(
+                                    camera.getDisplayOrientedPose().compose(Pose.makeTranslation(0, 0, -1f))
+                                            .extractTranslation());
+                            if (anchor != null) {
+                                offAnchorNode = new AnchorNode(anchor);
+                                offAnchorNode.setParent(arFragment.getArSceneView().getScene());
 
-                        if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
+                                offNode = new Node();
+                                offAnchorNode.addChild(offNode);
+                                offNode.setRenderable(alarmOffRenderable);
+
+                                turnOffButton = alarmOffRenderable.getView().findViewById(R.id.button_dismiss_alarm);
+                                turnOffButton.setOnClickListener(v -> {
+                                    offButtonClicked = true;
+                                    if (alarm.isRepeating()) {
+                                        alarm.setAlarmOn();
+                                    } else alarm.cancelAlarm();
+                                    stopAndSave();
+                                });
+                                complete = true;
+                            }
+                        }
+
+                        /*if (trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
                             Pose cameraPose = frame.getCamera().getPose();
                             float distFromInitialPose = calculateDistance(initialPose, cameraPose);
                             float distFromCamera = calculateDistance(cameraPose, hit.getHitPose());
@@ -226,7 +251,7 @@ public class JumpingButtonActivity extends AppCompatActivity {
                                 });
                                 complete = true;
                             }
-                        }
+                        }*/
                     }
                 }
             }
